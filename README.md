@@ -87,8 +87,22 @@ ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI�
 
 api接口
 -----
-
-
+### 使用方法
+		//取得ctopo对象, 点出api方法即可
+		var ctopo = ctopo({..各种基础配置..});
+		var nodeA = ctopo.node("1108"); //获取节点A
+		var nodeB = ctopo.node("0724"); //获取节点B
+		var edge = ctopo.edge("1108","0724"); //获取连线
+		
+### 接口表
+<table>
+	<thead>
+		<tr><td>方法名</td><td>描述</td><td>参数</td><td>返回值</td></tr>
+	</thead>
+	<tbody>
+		<tr><td>方法名</td><td>描述</td><td>参数</td><td>返回值</td></tr>
+	</tbody>
+</table>
 
 
 
