@@ -7,7 +7,7 @@ canvas版的拓扑图(topo)展示工具
 -----
   追溯到flash的年代, 曾使用ctoscapeweb插件绘制拓扑图, 到html5的canvas,svg, 使用sigma.js,d3.js,echarts,jtopo来完成拓扑图绘制,自己琢磨咋也要自己搞一套出来,不然太low,太逊,太没面子.
 
-ps: 感谢UI设计师yoki对topo图做的UI设计,很赞!!!
+ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI设计,很赞!!!
   
 兼容性
 -----
@@ -105,7 +105,7 @@ api接口
 
     }
 ### 链接
-1.[点击这里你可以链接到www.google.com](http://www.google.com)<br />
+1.[点击这里你可以链接到www.google.com](http://www.zcool.com.cn/u/968707)<br />
 2.[点击这里我你可以链接到我的博客](http://guoyunsky.iteye.com)<br />
 
 ###只是显示图片
