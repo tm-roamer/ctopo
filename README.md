@@ -100,7 +100,88 @@ api接口
 		<tr><td>方法名</td><td>描述</td><td>参数</td><td>返回值</td></tr>
 	</thead>
 	<tbody>
-		<tr><td>方法名</td><td>描述</td><td>参数</td><td>返回值</td></tr>
+		<tr>
+			<td>addEdge(edge,isDrawNow)</td>
+			<td>添加连线</td>
+			<td>
+				参数1: edge添加的连线对象<br/>
+				参数2: isDrawNow是否立刻渲染到屏幕
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>addNode(node,isDrawNow)</td>
+			<td>添加节点</td>
+			<td>
+				参数1: edge添加的节点对象<br/>
+				参数2: isDrawNow是否立刻渲染到屏幕
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>draw(options)</td>
+			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>
+				参数1: options初始的配置对象
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>draw(options)</td>
+			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>
+				参数1: options初始的配置对象
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>draw(options)</td>
+			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>
+				参数1: options初始的配置对象
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>draw(options)</td>
+			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>
+				参数1: options初始的配置对象
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>draw(options)</td>
+			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>
+				参数1: options初始的配置对象
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>draw(options)</td>
+			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>
+				参数1: options初始的配置对象
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>draw(options)</td>
+			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>
+				参数1: options初始的配置对象
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>draw(options)</td>
+			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>
+				参数1: options初始的配置对象
+			</td>
+			<td>空</td>
+		</tr>
 	</tbody>
 </table>
 
