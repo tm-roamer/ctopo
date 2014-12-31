@@ -15,7 +15,7 @@ ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI�
    
 性能
 -----
-  目前还在调优,200+节点毫无压力.
+  目前还在调优,200+节点毫无压力,顺畅的没有朋友,实测5000+节点可以显示,没有操作感.
 
 缺点
 -----
@@ -26,17 +26,20 @@ ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI�
 
 特性
 -----
-  提供控制面板;<br/>
-  支持鼠标滑轮和拖拽的放大,缩小;<br/>
-  上下左右键盘平移;<br/>
-  拖拽单个节点和屏幕;<br/>
-  支持点击和悬停节点;<br/>
-
+  (1)提供控制面板;<br/>
+  (2)支持鼠标滑轮和拖拽的放大,缩小;<br/>
+  (3)上下左右键盘平移;<br/>
+  (4)拖拽单个节点和屏幕;<br/>
+  (5)支持点击和悬停节点;<br/>
+  (6)支持悬停节点的关联节点高亮;<br/>
+  (7)提供事件回调接口;<br/>
+  (8)支持节点使用图片;<br/>
+  
 实现原理
 -----
-  使用html5的canvas标签来实现的<br/>
-  布局算法使用力导向布局(库仑斥力公式和胡克定律公式)<br/>
-  节点的碰撞检测使用勾股定理测距<br/>
+  (1)使用html5的canvas标签来实现的;<br/>
+  (2)布局算法使用力导向布局(库仑斥力公式和胡克定律公式)[来自网络](http://zhenghaoju700.blog.163.com/blog/static/13585951820114153548541/?suggestedreading&wumii);<br/>
+  (3)节点的碰撞检测使用勾股定理测距;<br/>
   
 适用场景和环境
 -----
@@ -53,6 +56,34 @@ ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI�
 
 基础实例
 -----
+  <!DOCTYPE html>
+  <html lang="zh">
+    <head>
+      <meta charset="UTF-8">
+      <title></title>
+    </head>
+    <body>
+      <canvas id="canvas"></canvas>
+      <script type="text/javascript" src="ctopo.js"></script>
+      <script type="text/javascript">
+        //调用ctopo
+        ctopo({
+		      id:"canvas",    //说明: canvas标签的id,     写法: canvas , #canvas
+		      width:"auto",   //说明: canvas的宽度,       写法: 500,500px,50%,auto 
+		      height:"auto",  //说明: canvas的高度,       写法: 500,500px,50%,auto
+		      style:{		  //说明: 样式省略了.....
+			      global:{},
+			      node:{},
+			      edge:{}
+		      },
+		      layout:{},	  //说明: 布局省略了.....
+		      data:{},	      //说明: 数据省略了.....
+		      event:{}	      //说明: 事件回调省略了.....
+		    });
+      </script>
+    </body>
+  </html>  
+  
 
 api接口
 -----
