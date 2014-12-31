@@ -56,33 +56,33 @@ ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI�
 
 基础实例
 -----
-  <!DOCTYPE html>
-  <html lang="zh">
-    <head>
-      <meta charset="UTF-8">
-      <title></title>
-    </head>
-    <body>
-      <canvas id="canvas"></canvas>
-      <script type="text/javascript" src="ctopo.js"></script>
-      <script type="text/javascript">
-        //调用ctopo
-        ctopo({
-		      id:"canvas",    //说明: canvas标签的id,     写法: canvas , #canvas
-		      width:"auto",   //说明: canvas的宽度,       写法: 500,500px,50%,auto 
-		      height:"auto",  //说明: canvas的高度,       写法: 500,500px,50%,auto
-		      style:{		  //说明: 样式省略了.....
-			      global:{},
-			      node:{},
-			      edge:{}
-		      },
-		      layout:{},	  //说明: 布局省略了.....
-		      data:{},	      //说明: 数据省略了.....
-		      event:{}	      //说明: 事件回调省略了.....
-		    });
-      </script>
-    </body>
-  </html>  
+		<!DOCTYPE html>
+		<html lang="zh">
+		    <head>
+		      <meta charset="UTF-8">
+		      <title></title>
+		    </head>
+		    <body>
+		      <canvas id="canvas"></canvas>
+		      <script type="text/javascript" src="ctopo.js"></script>
+		      <script type="text/javascript">
+		        //调用ctopo
+		        ctopo({
+				      id:"canvas",    //说明: canvas标签的id,     写法: canvas , #canvas
+				      width:"auto",   //说明: canvas的宽度,       写法: 500,500px,50%,auto 
+				      height:"auto",  //说明: canvas的高度,       写法: 500,500px,50%,auto
+				      style:{	      //说明: 样式省略了.....
+					      global:{},
+					      node:{},
+					      edge:{}
+				      },
+				      layout:{},      //说明: 布局省略了.....
+				      data:{},	      //说明: 数据省略了.....
+				      event:{}	      //说明: 事件回调省略了.....
+				    });
+		      </script>
+		    </body>
+		</html>  
   
 
 api接口
