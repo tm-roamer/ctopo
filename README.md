@@ -1,13 +1,18 @@
 ctopo
 =====
 
-canvas版的拓扑图(topo)展示工具
+canvas版的拓扑图(topo)展示工具,因为ff,chrome不支持本地请求json文件, 将整体工程放到本服务器下运行最为适宜.
 
-概述
+起因
 -----
-  追溯到flash的年代, 曾使用ctoscapeweb插件绘制拓扑图, 到html5的canvas,svg, 使用sigma.js,d3.js,echarts,jtopo来完成拓扑图绘制,自己琢磨咋也要自己搞一套出来,不然太low,太逊,太没面子.
+  总在使用别人的开源插件来绘制拓扑,琢磨咋也要自己搞一套出来,不然太low,太逊,太没面子.<br/>
 
 ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI设计,很赞!!!
+
+适用场景和环境
+-----
+  (1)适用于监控网络ip节点互联关系的场景<br/>
+  (2)适用于社交网络的群组互联访问关系
   
 兼容性
 -----
@@ -23,6 +28,8 @@ ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI�
   (2)连线没有箭头<br/>
   (3)动画api还没有制作<br/>
   (4)还未支持点击连线和悬停连线<br/>
+  (5)不支持节点图片和图标<br/>
+  (6)不支持框选操作
 
 特性
 -----
@@ -34,6 +41,7 @@ ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI�
   (6)支持悬停节点的关联节点高亮;<br/>
   (7)提供事件回调接口;<br/>
   (8)支持节点使用图片;<br/>
+  (9)支持力导向布局定位,即每次刷新页面,坐标不变;
   
 实现原理
 -----
@@ -41,11 +49,6 @@ ps: 感谢[UI设计师yoki](http://www.zcool.com.cn/u/968707)对topo图做的UI�
   (2)布局算法使用力导向布局(库仑斥力公式和胡克定律公式)[来自网络](http://zhenghaoju700.blog.163.com/blog/static/13585951820114153548541/?suggestedreading&wumii);<br/>
   (3)节点的碰撞检测使用勾股定理测距;<br/>
   
-适用场景和环境
------
-  (1)适用于监控网络ip节点互联关系的场景<br/>
-  (2)适用于社交网络的群组互联访问关系
-
 界面展示
 -----
   ![github](http://zcimg.zcool.com.cn/zcimg/m_ea6154a40239000001495fbfb757.jpg "示例图片")
@@ -105,8 +108,8 @@ api接口
 			<td>addEdge(edge,isDrawNow)</td>
 			<td>添加连线</td>
 			<td>
-				参数1: edge添加的连线对象<br/>
-				参数2: isDrawNow是否立刻渲染到屏幕
+				参数1: <br/>edge添加的连线对象<br/>
+				参数2: <br/>isDrawNow是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
@@ -114,8 +117,8 @@ api接口
 			<td>addNode(node,isDrawNow)</td>
 			<td>添加节点</td>
 			<td>
-				参数1: edge添加的节点对象<br/>
-				参数2: isDrawNow是否立刻渲染到屏幕
+				参数1: <br/>edge添加的节点对象<br/>
+				参数2: <br/>isDrawNow是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
@@ -123,16 +126,16 @@ api接口
 			<td>draw(options)</td>
 			<td>重新绘制画布,用法等于ctopo(options)</td>
 			<td>
-				参数1: options初始的配置对象
+				参数1: <br/>options初始的配置对象
 			</td>
 			<td>空</td>
 		</tr>
-		<tr>
-			<td>edge(sourceId,targetId)</td>
+		<tr>i
+			<td>edge(sid,tid)</td>
 			<td>取得连线对象</td>
 			<td>
-				参数1: 开始节点id<br/>
-				参数1: 结束节点id
+				参数1: <br/>开始节点id<br/>
+				参数1: <br/>结束节点id
 			</td>
 			<td>连线对象</td>
 		</tr>
@@ -148,7 +151,7 @@ api接口
 			<td>firstNeighbors(node)</td>
 			<td>返回所有关联节点的连线和邻居节点对象</td>
 			<td>
-				参数1: node待匹配的节点
+				参数1: <br/>node待匹配的节点
 			</td>
 			<td>返回与之关联的连线和节点对象{edgeNeighbors:[],nodeNeighbors:[]}</td>
 		</tr>
@@ -156,7 +159,7 @@ api接口
 			<td>layout(layout)</td>
 			<td>切换使用布局</td>
 			<td>
-				(可选)参数1: layout对象==初始的option.layout对象
+				(可选)参数1: <br/>layout对象==初始的option.layout对象
 			</td>
 			<td>返回初始的option.layout对象</td>
 		</tr>
@@ -164,7 +167,7 @@ api接口
 			<td>node(id)</td>
 			<td>取得节点对象</td>
 			<td>
-				参数1: 节点id
+				参数1: <br/>节点id
 			</td>
 			<td>节点对象</td>
 		</tr>
@@ -172,7 +175,7 @@ api接口
 			<td>nodeLabelsVisible(visible)</td>
 			<td>设置节点标签是否显示</td>
 			<td>
-				参数1: visible是否显示标签,布尔型true,false
+				参数1: <br/>visible是否显示标签,布尔型true,false
 			</td>
 			<td>空</td>
 		</tr>
@@ -188,7 +191,7 @@ api接口
 			<td>nodeTooltipsVisible(visible)</td>
 			<td>设置节点提示是否显示</td>
 			<td>
-				参数1: visible是否显示标签,布尔型true,false
+				参数1: <br/>visible是否显示标签,布尔型true,false
 			</td>
 			<td>空</td>
 		</tr>
@@ -196,7 +199,7 @@ api接口
 			<td>consolePanelVisible(visible)</td>
 			<td>设置控制台是否显示</td>
 			<td>
-				参数1: visible是否显示标签,布尔型true,false
+				参数1: <br/>visible是否显示标签,布尔型true,false
 			</td>
 			<td>空</td>
 		</tr>
@@ -204,17 +207,17 @@ api接口
 			<td>ready(fn)</td>
 			<td>当topo图加载完成后执行的方法</td>
 			<td>
-				参数1: fn当topo加载完成执行的回调函数
+				参数1: <br/>fn当topo加载完成执行的回调函数
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>removeEdge(sourceId,targetId,isDrawNow)</td>
+			<td>removeEdge(sid,tid,isDrawNow)</td>
 			<td>删除连线</td>
 			<td>
-				参数1: 开始节点id <br/>
-				参数2: 结束节点id <br/>
-				参数3: 是否立刻渲染到屏幕
+				参数1: <br/>开始节点id <br/>
+				参数2: <br/>结束节点id <br/>
+				参数3: <br/>是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
@@ -222,18 +225,18 @@ api接口
 			<td>removeNode(id,isDrawNow)</td>
 			<td>删除节点</td>
 			<td>
-				参数1: 节点id <br/>
-				参数2: 是否立刻渲染到屏幕
+				参数1: <br/>节点id <br/>
+				参数2: <br/>是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>updateEdge(sourceId,targetId,isDrawNow)</td>
+			<td>updateEdge(sid,tid,isDrawNow)</td>
 			<td>更新连线</td>
 			<td>
-				参数1: 开始节点id <br/>
-				参数2: 结束节点id <br/>
-				参数3: 是否立刻渲染到屏幕
+				参数1: <br/>开始节点id <br/>
+				参数2: <br/>结束节点id <br/>
+				参数3: <br/>是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
@@ -241,8 +244,8 @@ api接口
 			<td>updateNode(id,isDrawNow)</td>
 			<td>更新节点</td>
 			<td>
-				参数1: 节点id <br/>
-				参数2: 是否立刻渲染到屏幕
+				参数1: <br/>节点id <br/>
+				参数2: <br/>是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
@@ -250,7 +253,7 @@ api接口
 			<td>style(style)</td>
 			<td>取得样式对象</td>
 			<td>
-				参数1: style等于初始化配置对象option.style
+				参数1: <br/>style等于初始化配置对象option.style
 			</td>
 			<td>样式对象</td>
 		</tr>
