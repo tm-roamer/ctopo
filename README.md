@@ -153,7 +153,12 @@ api接口
 			<td>
 				参数1: <br/>node待匹配的节点
 			</td>
-			<td>返回与之关联的连线和节点对象{edgeNeighbors:[],nodeNeighbors:[]}</td>
+			<td>返回与之关联的连线和节点对象<br/>
+				{<br/>
+				edgeNeighbors:[],<br/>
+				nodeNeighbors:[]<br/>
+				}<br/>
+			</td>
 		</tr>
 		<tr>
 			<td>layout(layout)</td>
