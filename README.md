@@ -128,68 +128,134 @@ api接口
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>draw(options)</td>
-			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>edge(sourceId,targetId)</td>
+			<td>取得连线对象</td>
 			<td>
-				参数1: options初始的配置对象
+				参数1: 开始节点id<br/>
+				参数1: 结束节点id
+			</td>
+			<td>连线对象</td>
+		</tr>
+		<tr>
+			<td>edges()</td>
+			<td>取得所有的连线对象数组</td>
+			<td>
+				无
+			</td>
+			<td>连线对象数组</td>
+		</tr>
+		<tr>
+			<td>firstNeighbors(node)</td>
+			<td>返回所有关联节点的连线和邻居节点对象</td>
+			<td>
+				参数1: node待匹配的节点
+			</td>
+			<td>返回与之关联的连线和节点对象{edgeNeighbors:[],nodeNeighbors:[]}</td>
+		</tr>
+		<tr>
+			<td>layout(layout)</td>
+			<td>切换使用布局</td>
+			<td>
+				(可选)参数1: layout对象==初始的option.layout对象
+			</td>
+			<td>返回初始的option.layout对象</td>
+		</tr>
+		<tr>
+			<td>node(id)</td>
+			<td>取得节点对象</td>
+			<td>
+				参数1: 节点id
+			</td>
+			<td>节点对象</td>
+		</tr>
+		<tr>
+			<td>nodeLabelsVisible(visible)</td>
+			<td>设置节点标签是否显示</td>
+			<td>
+				参数1: visible是否显示标签,布尔型true,false
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>draw(options)</td>
-			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>nodes()</td>
+			<td>取得所有节点对象数组</td>
 			<td>
-				参数1: options初始的配置对象
+				无
+			</td>
+			<td>所有节点对象数组</td>
+		</tr>
+		<tr>
+			<td>nodeTooltipsVisible(visible)</td>
+			<td>设置节点提示是否显示</td>
+			<td>
+				参数1: visible是否显示标签,布尔型true,false
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>draw(options)</td>
-			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>consolePanelVisible(visible)</td>
+			<td>设置控制台是否显示</td>
 			<td>
-				参数1: options初始的配置对象
+				参数1: visible是否显示标签,布尔型true,false
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>draw(options)</td>
-			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>ready(fn)</td>
+			<td>当topo图加载完成后执行的方法</td>
 			<td>
-				参数1: options初始的配置对象
+				参数1: fn当topo加载完成执行的回调函数
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>draw(options)</td>
-			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>removeEdge(sourceId,targetId,isDrawNow)</td>
+			<td>删除连线</td>
 			<td>
-				参数1: options初始的配置对象
+				参数1: 开始节点id <br/>
+				参数2: 结束节点id <br/>
+				参数3: 是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>draw(options)</td>
-			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>removeNode(id,isDrawNow)</td>
+			<td>删除节点</td>
 			<td>
-				参数1: options初始的配置对象
+				参数1: 节点id <br/>
+				参数2: 是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>draw(options)</td>
-			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>updateEdge(sourceId,targetId,isDrawNow)</td>
+			<td>更新连线</td>
 			<td>
-				参数1: options初始的配置对象
+				参数1: 开始节点id <br/>
+				参数2: 结束节点id <br/>
+				参数3: 是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
+		</tr>
+		<tr>
+			<td>updateNode(id,isDrawNow)</td>
+			<td>更新节点</td>
+			<td>
+				参数1: 节点id <br/>
+				参数2: 是否立刻渲染到屏幕
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>style(style)</td>
+			<td>取得样式对象</td>
+			<td>
+				参数1: style等于初始化配置对象option.style
+			</td>
+			<td>样式对象</td>
 		</tr>
 	</tbody>
 </table>
-
-
-
-
-
 
 
 
