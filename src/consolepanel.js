@@ -36,13 +36,8 @@ function ConsolePanel(){
 
 	//切换上下左右的图片
 	this.setSteerWheelClass = function(className){
-		$("."+this.steerwheel_panel)
-  			.removeClass("steer_37")
-  			.removeClass("steer_38")
-  			.removeClass("steer_39")
-  			.removeClass("steer_40")
-  			.removeClass("steer_default")
-  			.addClass(className);
+		var steerwheel_panel = document.querySelector("."+this.steerwheel_panel);
+		steerwheel_panel.setAttribute("class",this.steerwheel_panel+" "+className);
 	};
 	//设置初始化参数
 	this.setOption = function(opt){

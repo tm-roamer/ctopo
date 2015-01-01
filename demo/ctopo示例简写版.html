@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8">
+    <title>ctopo示例简写版</title>
+    <link type="text/css" rel="stylesheet" href="../css/consolepanel.css" />
+    <style>
+      /** 清除内外边距 **/
+      body{
+          margin: 0;
+          padding: 0;
+          overflow:hidden;
+      }
+    </style>
+  </head>
+  <body>
+
+    <!-- 第一步: 先配置一个canvas标签,并设置id  -->
+    <canvas id="canvas"></canvas>
+    
+
+    <script type="text/javascript" src="../src/consolepanel.js"></script>
+    <script type="text/javascript" src="../src/ctopo.js"></script>
+    <script type="text/javascript">
+
+      var xhr = new XMLHttpRequest();
+      xhr.onreadystatechange = function(){
+          if(xhr.readyState==4){
+              var json = JSON.parse(xhr.responseText);
+
+
+              //第二步: 构建配置对象
+              var option = {
+                  id:"canvas",    //说明: canvas标签的id
+                  data:json       //说明: 绑定数据
+              };
+              //第三步: 构建ctopo绘制canvas
+              ctopo(option);
+
+
+          }
+      }
+      xhr.open('GET','data_small.json',true);
+      xhr.send();
+
+    </script>
+  </body>
+</html>
+

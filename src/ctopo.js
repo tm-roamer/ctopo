@@ -1,6 +1,96 @@
 function ctopo(opt){
-	var defaultOpt = {};
-	
+	var defaultOpt = {
+		id:"",    		//说明: canvas标签的id,     写法: canvas , #canvas
+      	width:"auto",   //说明: canvas的宽度,       写法: 500,500px,50%,auto,默认auto
+      	height:"auto",  //说明: canvas的高度,       写法: 500,500px,50%,auto,默认auto
+      	isShowConsolePanel:true,   //说明: 是否显示控制台,      写法: true,false,  默认true
+      	isShowNodeLabel:true,     //说明: 是否显示节点文字,    写法: true,false,  默认true
+      	isShowNodeTooltip:true,   //说明: 是否显示节点提示框,  写法: true,false,  默认true
+      	isHoverNodeLight:true,     //说明: 是否悬停节点高亮,    写法: true,false,  默认true
+      	style:{                    //说明: 全局样式
+        	global:{
+          		backgroundColor:"#ffffff",  //说明: 支持fillstyle所有原生写法, 例: rgba(255,255,255,1),默认#ffffff
+          		backgroundImage:null, 		//说明: 背景网格线, 默认为null
+          		backgourndImageOpacity:0.3, //说明: 背景网格线透明度, 配置了backgroundImage此字段才有效, 默认0.3
+                                      		//备注: backgroundColor灰,白,0.5美观;backgroundColor黑色,蓝色,0.2美观
+        	},
+	        node:{
+	          color:"#00adee",     //说明: 节点颜色, 支持fillstyle所有原生写法, 优先级低于节点自带属性, 默认#00adee
+	          size:20,             //说明: 节点直径, 优先级低于节点自带属性, 默认20px, 
+	          textColor:"#878787", //说明: 节点Label颜色, 优先级低于节点自带属性, 默认#878787
+	          textSize:10          //说明: 节点Label字体大小, 优先级低于节点自带属性, 默认10px
+	        },
+	        edge:{
+	          color:"#c2c2c2",     //说明: 连线颜色, 支持fillstyle所有原生写法, 优先级低于节点自带属性, 默认#c2c2c2
+	              size:1               //说明: 连线宽度, 优先级低于节点自带属性, 默认1px
+	        }
+          },
+        layout:{
+        	name:"force",          //说明: 布局方式,支持force力导向和preset预设, 默认force
+        	param:{
+	          isRandom : false,    //说明: 默认初始位置是随机Random还是定位location,默认false
+	          initAreaW : 100,     //说明: 初始分布是的初始宽,默认100px
+	          initAreaH : 56,      //说明: 初始分布是的初始高,默认56px
+	          energy:0.5,          //说明: 能量值范围0.3-1,  默认0.5
+	          iterations :150,     //说明: 力导向的迭代次数,默认150
+	          ejectFactor : 2,     //说明: 默认斥力常量,默认2
+	          ejectRange : 250,    //说明: 最大斥力范围,超过的不计算节点间斥力,默认2
+	          ejectFadeRange : 30, //说明: 节点簇的减弱范围,此范围内ejectFactor-1,默认30
+	          condenseFactor : 1,  //说明: 默认引力常量,默认1
+	          maxtx : 3,           //说明: 每次迭代的x方向最大移动距离,默认3
+	          maxty : 1.68         //说明: 每次迭代的y方向最大移动距离,默认1.68
+	        }
+        },
+        data:{                     //说明: 数据格式
+            /*
+            nodes:[
+              {
+                id:"节点id",         //说明: 必填项, 节点id, 必须唯一
+                x:0,                 //说明: 节点x坐标,
+                y:0,                 //说明: 节点y坐标,
+                label:"显示标签",    //说明: 显示标签, 默认null
+                color:"#00adee",     //说明: 节点颜色, 支持fillstyle所有原生写法, 优先级高于全局样式, 不配置默认等于全局样式
+                size:20,             //说明: 节点直径, 优先级高于全局样式, 不配置默认等于全局样式 
+                textColor:"#878787", //说明: 节点Label颜色, 优先级高于全局样式, 不配置默认等于全局样式
+                textSize:10          //说明: 节点Label字体大小, 优先级高于全局样式, 不配置默认等于全局样式
+                //保留字段           //说明:  保留字段不可使用
+                                     //       originalColor=color,保存初始颜色,方便颜色变换
+                                     //       dispx,dispy,布局运算时的偏移量
+                //支持自定义字段     //说明: 
+                                     //       (1)不支持函数形式的自定义字段,基本类型,对象,数组都行
+                                     //       (2)不可以和保留字段重名
+                customField1:"fieldl",
+                customField2:["field2_1","field2_2"],
+                customField3:{field3_1:"field3_1",field3_2:"field3_2"}
+              }
+            ],
+            edges:[
+              {
+                source:"开始节点id", //说明: 必填项, 开始节点id
+                target:"结束节点id"  //说明: 必填项, 结束节点id
+                color:"#c2c2c2",     //说明: 连线颜色, 支持fillstyle所有原生写法, 优先级高于全局样式, 不配置默认等于全局样式
+                size:1               //说明: 连线宽度, 优先级高于全局样式, 不配置默认等于全局样式
+                //保留字段           //说明: 保留字段不可使用
+                                     //       originalColor=color,保存初始颜色,方便颜色变换
+                                     //       sourceIndex,targetIndex=开始和结束节点在nodes数组的索引值
+                //支持自定义字段     //说明: 
+                                     //       (1)不支持函数形式的自定义字段,,基本类型,对象,数组都行
+                                     //       (2)不可以和保留字段重名
+                customField1:"fieldl",
+                customField2:["field2_1","field2_2"],
+                customField3:{field3_1:"field3_1",field3_2:"field3_2"}
+              }
+            ]
+            */
+        },
+        event:{                    //说明: 监听回调
+            steerwheel:null,       //说明: 上下左右的平移回调
+            scale:null,       	   //说明: 放大缩小的回调
+            clickNode:null,        //说明: 点击节点的回调
+            hoverNode:null,        //说明: 悬停节点的回调
+            leaveNode:null         //说明: 离开节点的回调
+        }
+	};
 	var tp = {
 		version:"v1.0.0",
 		init:function(){
@@ -23,21 +113,46 @@ function ctopo(opt){
 			//(3)初始化canvas宽度和高度
 			this.setCanvasWH(width,height);
 			//(4)配置数据
-			this.setData(option.data);
+			this.setData(option.data,option.style);
 			//(5)应用布局
 
 			//(6)配置监听
 			tp.event.init();
 
-			//重点: 需要引入状态机?????????????帧率
+			tp.consolePanel = new tp.consolePanel(); //初始化控制台
+			var date1=new Date().getTime();  //开始时间
+			tp.layout.run();
+			var date2=new Date().getTime();  //布局时间
+			tp.render.draw();
+			var date3=new Date().getTime();  //绘制时间
+			console.log("nodes count="+tp.nodes.length+",edges count="+tp.edges.length+",layout time="+(date2-date1)+",draw time="+(date3-date2) );
 		},
 		destory:function(){
 
 		},
-		setData:function(data){
+		setData:function(data,style){
 			if( typeof data !== "undefined" ){
 				this.nodes = (typeof data.nodes !== "undefined")?data.nodes:[];
 				this.edges = (typeof data.edges !== "undefined")?data.edges:[];
+			}
+			//配置转换数据格式,补充字段
+			var nodeStyle=style.node,
+				edgeStyle=style.edge,
+				nodes = this.nodes,
+				edges = this.edges;
+			for (var i = 0; i < nodes.length; i++) {
+				var node = nodes[i];
+				node.size  = node.size ? node.size : nodeStyle.size;
+				node.color = node.color? node.color: nodeStyle.color;
+				node.textSize  = node.textSize ? node.textSize : nodeStyle.textSize;
+				node.textColor = node.textColor? node.textColor: nodeStyle.textColor; //node对象样式 > 全局样式
+				node.originalColor = node.color;
+			}
+			for (var i = 0; i < edges.length; i++) {
+				var edge = edges[i];
+				edge.size  = edge.size ? edge.size : edgeStyle.size;
+				edge.color = edge.color? edge.color: edgeStyle.color; 	//edge对象样式 > 全局样式
+				edge.originalColor = edge.color;
 			}
 		},
 		setCanvasWH:function(width,height){
@@ -259,12 +374,15 @@ function ctopo(opt){
 	//布局对象------------------------------------------------
 	tp.layout={};
 	tp.layout.run=function(){
-		//????如何没有配置????????
-		var layout = tp.option.layout;
-		if( layout.name === "force" ){
-			this.force(layout.param);
-		}else if( layout.name === "preset" ){
-		}else if( layout.name === "nestcircle" ){
+		try{
+			var layout = tp.option.layout;
+			if( layout.name === "force" ){
+				this.force(layout.param);
+			}else if( layout.name === "preset" ){
+			}else if( layout.name === "nestcircle" ){
+			}
+		}catch(e){
+			throw {name:"layout error",message:"layout error"};
 		}
 	}
 	tp.layout.force=function(param){
@@ -467,6 +585,7 @@ function ctopo(opt){
 					//修改节点坐标
 				}else{
 					//nodes整体平移
+					var nodes = tp.nodes;
 					for(var i=0; i<nodes.length; i++){
 						var node = nodes[i];
 						node.x = node.x + dx;
@@ -570,58 +689,41 @@ function ctopo(opt){
 	  	}
 	}
 	tp.render.drawNode=function(style,node,context){
-		
-		//绘制节点图片???????这个地方判断不合理
-	  	if( style.image && node.image ){
-	  		/**/
-	  		try{
-	  			var img = new Image();
-			  	img.addEventListener('load',function(){
-			  		context.drawImage(img,(node.x-node.size/2),(node.y-node.size/2),node.size,node.size);
-			  	},false);
-			  	img.src=style.image;
-	  		}catch(e){
-	  			throw new URIError("style.node.image url error");
-	  		}
-	  	}else{
-	  		context.beginPath();
-			context.fillStyle=node.color?node.color:style.color;	//node对象样式 > 全局样式
-		  	context.arc(node.x,node.y,parseInt(node.size/2),0,(Math.PI/180)*360,false);
-		  	context.fill();
-		  	context.closePath();
-		  	//绘制label
-		  	this.drawNodeLabel(style,node,context);
-	  	}
+  		context.beginPath();
+		context.fillStyle=node.color;	//node对象样式 > 全局样式
+	  	context.arc(node.x,node.y,parseInt(node.size/2),0,(Math.PI/180)*360,false);
+	  	context.fill();
+	  	context.closePath();
+	  	//绘制label
+	  	this.drawNodeLabel(style,node,context);
 	  	//console.log("x="+node.x+",y="+node.y);
 	}
 	tp.render.drawNodeLabel=function(style,node,context){
-		var textWidth = context.measureText(node.label).width, //文字宽
-			textColor = node.textColor?node.textColor:style.textColor,
-			textSize = node.textSize?node.textSize:style.textSize;
-		context.fillStyle=textColor;
-		context.font=textSize+"px serif";
-		context.fillText(node.label,node.x-(textWidth/2),node.y+node.size/2+textSize);
+		try{
+			if( node.label ){
+				var textWidth = context.measureText(node.label).width; //文字宽
+				context.fillStyle=node.textColor;
+				context.font=node.textSize+"px serif";
+				context.fillText(node.label,node.x-(textWidth/2),node.y+node.size/2+node.textSize);
+			}
+		}catch(e){
+			throw { name:" draw node label error ", message : " draw node label error " };
+		}
 	}
 	tp.render.drawEdge=function(style,edge,context){
 		var nodeS = tp.utils.indexNode(edge.sourceIndex);
 	    var nodeE = tp.utils.indexNode(edge.targetIndex);
 		context.beginPath();
-		context.strokeStyle=edge.color?edge.color:style.color;	//edge对象样式 > 全局样式
+		context.strokeStyle=edge.color;
 		context.lineWidth=edge.size;
 	  	context.moveTo(nodeS.x,nodeS.y);
 	 	context.lineTo(nodeE.x,nodeE.y);
 	  	context.stroke();
 	  	context.closePath();
 	}
+	//构建初始配置
 	tp.option = tp.utils.extend(defaultOpt,opt?opt:{});
-	//???????? 我还没加载数据,执行个屁
+	//执行初始化
 	tp.init();
-	tp.consolePanel = new tp.consolePanel(); //初始化控制台
-	var date1=new Date().getTime();  //开始时间
-	tp.layout.run();
-	var date2=new Date().getTime();  //布局时间
-	tp.render.draw();
-	var date3=new Date().getTime();  //绘制时间
-	console.log("nodes count="+tp.nodes.length+",edges count="+tp.edges.length+",layout time="+(date2-date1)+",draw time="+(date3-date2) );
 	return tp;
 }
