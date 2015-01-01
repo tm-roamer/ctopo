@@ -1,0 +1,138 @@
+/**
+ * console_panel为控制台的顶层div
+ * 以下所有的样式均为层级选择器,不会污染其他样式文件
+ */
+.console_panel{
+	position:absolute;
+	top:5px;
+	left:5px;
+}
+/* 方向盘 控制上下左右的样式 */
+.console_panel .steerwheel_panel {
+	position:absolute;
+	width: 86px;
+	height: 86px;
+	overflow: hidden;
+	background: url(consolepanel.png) no-repeat;
+	cursor:pointer;
+}
+.console_panel .steer_default{
+	background-position: 0px 0px;
+}
+/* 键盘触发
+	37==left
+	38==up
+	39==right
+	40==down
+ */
+.console_panel .steer_37{
+	background-position: 0px -344px;
+}
+.console_panel .steer_38{ 
+	background-position: 0px -86px;
+}
+.console_panel .steer_39{
+	background-position: 0px -172px;
+}
+.console_panel .steer_40{
+	background-position: 0px -258px;
+}
+/* 触发上下左右的div块 */
+.console_panel .steer_btn{
+	position:absolute;
+	height: 30px;
+	width: 30px;
+}
+.console_panel .steer_btn_up{
+	top: 0;
+	left: 28px;
+}
+.console_panel .steer_btn_down{
+	bottom: 0;
+	left: 28px;
+}
+.console_panel .steer_btn_left{
+	top: 28px;
+	left: 0px;
+}
+.console_panel .steer_btn_right{
+	top: 28px;
+	right: 0px;
+}
+/* 放大缩小的面板 */
+.console_panel .zoom_panel{
+	position:absolute;
+	top:86px;
+	left:30px;
+}
+/* 放大缩小按钮*/
+.console_panel .zoom {
+	cursor:pointer;
+	width: 26px;
+	height: 26px;
+	overflow: hidden;
+	background: url(consolepanel.png) no-repeat;
+}
+/* 放大 */
+.console_panel .zoom_out{
+	position:absolute;
+	top:0px;
+	left:0px;
+	background-position: 0px -430px;
+}
+.console_panel .zoom_out:hover{
+	background-position: 0px -456px;
+}
+/* 缩小 */
+.console_panel .zoom_in{
+	position:absolute;
+	top:166px;
+	left:0px;
+	background-position: 0px -482px;
+}
+.console_panel .zoom_in:hover{
+	background-position: 0px -508px;
+}
+/* 比例尺条 */
+.console_panel .scale_bar{
+	position:absolute;
+	top:26px;
+	left:0px;
+	height:140px;
+	width:26px;
+}
+/* 比例尺的槽 */
+.console_panel .scale_ruler {
+	position:absolute;
+	top:0px;
+	left:4px;
+	z-index: 10;
+	width: 18px;
+	height: 140px;
+	overflow: hidden;
+	background: url(consolepanel.png) no-repeat -26px -430px;
+}
+/* 比例尺的滑块 */
+.console_panel .scale_slider {
+	position:absolute;
+	top:60px;
+	left:0px;
+	z-index: 12;
+	width: 26px;
+	height: 20px;
+	overflow: hidden;
+	background: url(consolepanel.png) no-repeat 0px -534px;
+	cursor:pointer;
+}
+/* 比例尺的当前比例(已经选中的比例) */
+.console_panel .scale_ruler_current {
+	position:absolute;
+	top:70px;
+	left:4px;
+	z-index: 11;
+	width: 18px;
+	/*height: 140px;*/
+	height:70px;
+	overflow: hidden;
+	background: url(consolepanel.png) no-repeat -44px -500px;
+}

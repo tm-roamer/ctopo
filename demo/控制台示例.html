@@ -1,0 +1,52 @@
+﻿<!doctype html>
+<html lang="zh">
+	<head>
+		<meta charset="UTF-8">
+		<title>canvas demo</title>
+		<link type="text/css" rel="stylesheet" href="../css/consolepanel.css" />
+		<style>
+			html,body{
+				margin:0;
+				padding:0;
+				overflow:hidden;
+			}
+		</style>
+	</head>
+	<body>
+		<div class="div" style=""></div>
+		
+		
+		<script type="text/javascript" src="../jquery.min.js"></script>
+		<script type="text/javascript" src="../src/consolepanel.js"></script>
+		<script type="text/javascript">
+			
+			$(document).ready(function(){
+
+				$("div").height( $("html")[0].clientHeight );
+				/**
+				 * 使用注意: 
+				 *		部分事件绑定在body上面,当body页面为空时,绑定的滑轮不可用
+				 *		consolePanel.getHTML()最好添加到body元素下
+				 */
+				var consolePanel = new ConsolePanel();
+				
+				consolePanel.setOption({
+					//上下左右回调
+					steerwheel:function(keyCode){
+						console.log(keyCode);
+					},
+					//放大,缩小回调
+					scale:function(prevScale,scale){
+						console.log(scale);
+					}
+				});
+
+				$("body").append( consolePanel.getDom() );
+
+				consolePanel.show();
+
+			});
+
+		</script>
+	</body>
+</html>
