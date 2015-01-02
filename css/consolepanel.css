@@ -1,6 +1,6 @@
 /**
  * console_panel为控制台的顶层div
- * 以下所有的样式均为层级选择器,不会污染其他样式文件
+ * 以下所有的样式均下层级选择器下,不会污染其他样式文件
  */
 .console_panel{
 	position:absolute;
