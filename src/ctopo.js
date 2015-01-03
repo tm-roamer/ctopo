@@ -12,8 +12,8 @@ function ctopo(opt){
       	width:"auto",   //说明: canvas的宽度,       写法: 500,500px,50%,auto,默认auto
       	height:"auto",  //说明: canvas的高度,       写法: 500,500px,50%,auto,默认auto
       	isShowConsolePanel:true,   //说明: 是否显示控制台,      写法: true,false,  默认true
-      	isShowNodeLabel:true,     //说明: 是否显示节点文字,    写法: true,false,  默认true
-      	isShowTooltip:false,   	   //说明: 是否显示节点提示框,  写法: true,false,  默认false
+      	isShowNodeLabel:true,      //说明: 是否显示节点文字,    写法: true,false,  默认true
+      	isShowNodeTooltip:false,   //说明: 是否显示节点提示框,  写法: true,false,  默认false
       	isHoverNodeLight:true,     //说明: 是否悬停节点高亮,    写法: true,false,  默认true
       	style:{                    //说明: 全局样式
         	global:{
@@ -160,6 +160,8 @@ function ctopo(opt){
 		//初始化对象
 		initObject();
 
+		//tp.ready();
+
 		//应用布局
 		var date1=new Date().getTime();
 		layout.run(tp.option.layout);
@@ -179,6 +181,37 @@ function ctopo(opt){
 	}
 
 	/**
+	 * topo图销毁方法(私有方法)
+	 */
+	function destory(){
+		//事件
+	 	event.destory();		//注销canvas事件
+	 	conPanel.removeEvent();	//注销控制台事件
+	 	//html
+	 	conPanel.remove();		//清理控制台html
+	 	tooltip.remove();		//清理悬停提示html
+	 	//清理画布html, 取得canvas标签,先克隆一份添加到它的之前,然后干掉它
+	 	var id = tp.option.id,
+	 		canvas = document.querySelector( (id[0]=="#"?id.slice(1,id.length):id) ),
+	 		canvasClone = canvas.cloneNode(true);
+	 	document.body.insertBefore(canvasClone,canvas);
+	 	document.body.removeChild(canvas);
+	 	//对象
+	 	conPanel = null;	//注销控制台对象
+	 	tooltip = null;		//注销悬停提示框对象
+		utils = null;		//注销工具对象
+	 	layout = null;		//注销布局对象
+	 	event = null;		//注销监听对象
+	 	render = null;		//注销绘制对象
+	 	api = null;			//注销API接口
+	 	tp.option = null;	//注销配置
+	 	tp.canvas = null;
+	 	tp.context = null;
+	 	tp.nodes=null;
+	 	tp.edges=null;
+	}
+
+	/**
 	 * 判断浏览器是否支持canvas(私有方法)
 	 */
 	function canvasSupport(){
@@ -189,7 +222,7 @@ function ctopo(opt){
 	 * 构建canvas上下文环境(私有方法)
 	 */
 	function contextHandler(id){
-		if( typeof id !== "undefined"){
+		if( id ){
 			//获取canvas
 			tp.canvas = document.getElementById(id[0]=="#"?id.slice(1,id.length):id); //兼容#
 		}else{
@@ -228,8 +261,8 @@ function ctopo(opt){
 	 */
 	function setData(data,style){
 		if( typeof data !== "undefined" ){
-			tp.nodes = (typeof data.nodes !== "undefined")?data.nodes:[];
-			tp.edges = (typeof data.edges !== "undefined")?data.edges:[];
+			tp.nodes = ( data.nodes instanceof Array )?data.nodes.slice(0,data.nodes.length):[];
+			tp.edges = ( data.edges instanceof Array )?data.edges.slice(0,data.edges.length):[];
 		}
 		//配置转换数据格式,补充字段
 		var nodeStyle=style.node,
@@ -242,6 +275,7 @@ function ctopo(opt){
 		for (var i = 0; i < edges.length; i++) {
 			setEdge(edges[i],edgeStyle)
 		}
+		delete data;
 	}
 
 	/**
@@ -253,9 +287,9 @@ function ctopo(opt){
 		node.textSize  = node.textSize ? node.textSize : nodeStyle.textSize;
 		node.textColor = node.textColor? node.textColor: nodeStyle.textColor; //node对象样式 > 全局样式
 		node.originalColor = node.color;
-		node.x=0;
-		node.y=0;
-		node.tooltip=null;
+		node.x=node.x ? node.x : 0;
+		node.y=node.y ? node.y : 0;
+		node.tooltip=node.tooltip ? node.tooltip : null;
 		return node;
 	}
 
@@ -275,34 +309,31 @@ function ctopo(opt){
 	 *	初始化对象(私有方法)
 	 */
 	function initObject(){
-		//初始化控制台对象
-	 	ConPanel.prototype= new ConsolePanel();
+	 	ConPanel.prototype= new ConsolePanel();//初始化控制台对象
 	 	conPanel = new ConPanel();
-	 	//悬停提示框对象
-	 	tooltip = new Tooltip();
-		//初始化工具对象
-		utils = new Utils();
-		//初始化布局对象
-	 	layout = new Layout();
-	 	//初始化监听对象
-	 	event = new Event();
-	 	//初始化绘制对象
-	 	render = new Render();
-	 	//初始化API接口
-	 	api = new API();
+	 	tooltip = new Tooltip();	//悬停提示框对象
+		utils = new Utils();		//初始化工具对象
+	 	layout = new Layout();		//初始化布局对象
+	 	event = new Event();		//初始化监听对象
+	 	render = new Render();		//初始化绘制对象
+	 	api = new API();			//初始化API接口
 	 	tp.extendCopy(tp,api); //属性copy
 	}
 
 	//控制台对象(私有对象)------------------------------------------------
 	function ConPanel(){
-		var isShow = tp.option.isShowConsolePanel,
-			event = tp.option.event;
-		if( isShow ){
+		//不存在的时候才添加
+		var console_panel = document.querySelector("."+this.console_panel);
+		if( !console_panel ){
 			document.body.insertBefore(this.getDom(),document.body.firstChild); //插入html
-			this.setOption({steerwheel:steerwheelCallBack,scale:scaleCallBack});
-			this.show(); //显示
+		}
+		this.setOption({steerwheel:steerwheelCallBack,scale:scaleCallBack});
+		this.initEvent();		//加入监听
+		if( tp.option.isShowConsolePanel ){
+			this.show(); 		//显示
 		}else{
-			this.hide(); //隐藏
+			this.hide(); 		//隐藏
+			//this.removeEvent(); //移除监听
 		}
 		//上下左右平移的回调
 		function steerwheelCallBack(keyCode){
@@ -313,8 +344,8 @@ function ctopo(opt){
 				render.draw();
 			}
 			//设置回调
-			if( event.steerwheel ){
-				event.steerwheel(keyCode);
+			if( tp.option.event.steerwheel ){
+				tp.option.event.steerwheel(keyCode);
 			}
 		}
 		//放大缩小的回调
@@ -326,17 +357,21 @@ function ctopo(opt){
 				render.draw();
 			}
 			//设置回调
-			if( event.scale ){
-				event.scale(prevScale,scale);
+			if( tp.option.event.scale ){
+				tp.option.event.scale(prevScale,scale);
 			}
 		}
 	}
 	//悬停提示框对象(私有对象)------------------------------------------------
 	function Tooltip(){
 		var name="ctopo_tooltip";
-		document.body.insertBefore(getDom(),document.body.firstChild); //插入html
+		//不存在的时候才添加
+		var tip = document.querySelector("."+name);
+		if( !tip ){
+			document.body.insertBefore(getDom(),document.body.firstChild); //插入html
+		}
 		this.chooseDisplay = function(node,ex,ey){
-			if( tp.option.isShowTooltip ){
+			if( tp.option.isShowNodeTooltip ){
 				if( node ){
 					if( node.tooltip ){
 						//node.tooltip="192.1596.fsdfs";
@@ -347,6 +382,10 @@ function ctopo(opt){
 				}
 			}
 		}
+		this.remove=function(){
+			var tip = document.querySelector("."+name);
+			document.body.removeChild(tip);
+		};
 		function getDom(){
 			var tip = document.createElement("div");
 			tip.setAttribute("class",name);
@@ -369,11 +408,11 @@ function ctopo(opt){
 		}
 		function show(node,ex,ey){
 			var tip = document.querySelector("."+name);
-			tip.style.visibility="visible";
 			var coord = computePosition(node,ex,ey);
 			tip.style.top=coord.top+"px";
 			tip.style.left=coord.left+"px";
 			tip.innerHTML=node.tooltip;
+			tip.style.visibility="visible";
 		}
 		function hide(){
 			var tip = document.querySelector("."+name);
@@ -397,6 +436,7 @@ function ctopo(opt){
 	//工具对象(私有对象)-----------------------------------------------
 	function Utils(){
 		this.relationEdges = [];
+		this.relationNodes = [];
 		this.notRelationNodes = [];
 
 		//函数节流
@@ -424,7 +464,7 @@ function ctopo(opt){
 		}
 
 		//私有函数,创建索引(数组)
-		this.createNodeIndex = function (nodes,edges){
+		this.createNodeIndex = function(nodes,edges){
 			for(var j=0; j<edges.length; j++){
 				this.createIndex(nodes,edges[j])
 			}
@@ -448,32 +488,48 @@ function ctopo(opt){
 			//关联节点高亮
 			if( tp.option.isHoverNodeLight ){
 				if( collideNode ){
-					this.firstNeighbors(collideNode);
+					//绘制高亮
+					var ndoeColor = tp.option.style.node.color,
+						edgeColor = tp.option.style.edge.color,
+						neighbors = this.firstNeighbors(collideNode.id); //取得关联
+					this.relationEdges = neighbors.edgeNeighbors;
+					this.relationNodes = neighbors.nodeNeighbors;
+					this.notRelationNodes = neighbors.nodeNotNeighbors;	
+					for (var i = 0; i < this.relationEdges.length; i++) {
+						this.relationEdges[i].color = ndoeColor;
+					}
+					for (var i = 0; i < this.notRelationNodes.length; i++) {
+						this.notRelationNodes[i].color = edgeColor;
+					}
 				}else{
+					//取消高亮
 					this.cancelFirstNeighbors();
 				}
 				this.throttle(render.draw,render,Math.floor(1000/60) );
 			}
 		}
 
-		this.firstNeighbors=function(n){
+		this.firstNeighbors=function(nid){
 			var edges = tp.edges,
 				nodes = tp.nodes,
-				ndoeColor = tp.option.style.node.color,
-				edgeColor = tp.option.style.edge.color,
-				relationEdges = this.relationEdges,
-				notRelationNodes = this.notRelationNodes;
+				relationEdges = [],//this.relationEdges,
+				relationNodes = [],//this.relationNodes;
+				notRelationNodes = [];//this.notRelationNodes;
 			//查到关联的线
 			for (var i = 0; i < edges.length; i++) {
 				var edge = edges[i]
-				if( edge.source == n.id || edge.target == n.id ){
-					edge.color = ndoeColor;
+				if( edge.source == nid || edge.target == nid ){
 					relationEdges.push(edge);
 				}
 			}
 			//根据线查找关联的点
 			for (var i = 0; i < nodes.length; i++) {
 				var bool=false,node = nodes[i];
+				//是不是当前点
+				if( node.id == nid ){
+					bool = true;
+					continue;
+				}
 				//查询是否关联了线
 				for (var j = 0; j < relationEdges.length; j++) {
 					var edge = relationEdges[j];
@@ -482,10 +538,16 @@ function ctopo(opt){
 					}
 				}
 				if( !bool ){
-					node.color = edgeColor;
-					notRelationNodes.push(node);
+					notRelationNodes.push(node); //未关联
+				}else{
+					relationNodes.push(node);	 //关联
 				}
 			}
+			return {
+				edgeNeighbors:relationEdges,
+				nodeNeighbors:relationNodes,
+				nodeNotNeighbors:notRelationNodes
+			};
 		}
 
 		this.cancelFirstNeighbors=function(){
@@ -805,18 +867,14 @@ function ctopo(opt){
 	function Render(){
 
 		var self = this,
-			nodes = tp.nodes,
-			edges = tp.edges,
 			context = tp.context,
 			canvasW = tp.canvas.width,
-			canvasH = tp.canvas.height,
-			style = tp.option.style,
-			isShowNodeLabel = tp.option.isShowNodeLabel;
+			canvasH = tp.canvas.height;
 
 		this.draw=function(){
-			clearCanvas();					//清除图像
-			drawGlobal(style.global);		//绘制背景
-			drawData();					//绘制数据
+			clearCanvas();						//清除图像
+			drawGlobal(tp.option.style.global);	//绘制背景
+			drawData(tp.nodes,tp.edges);		//绘制数据
 		}
 
 		/**
@@ -842,7 +900,7 @@ function ctopo(opt){
 			}
 		}
 
-		function clearCanvas (){
+		function clearCanvas(){
 			context.clearRect(0,0,canvasW,canvasH);
 		}
 
@@ -858,7 +916,7 @@ function ctopo(opt){
 		  	}
 		}
 
-		function drawData(){
+		function drawData(nodes,edges){
 			//绘制连线
 			for(var i=0;i<edges.length;i++){
 			   	drawEdge(edges[i]);	
@@ -876,7 +934,7 @@ function ctopo(opt){
 		  	context.fill();
 		  	context.closePath();
 		  	//绘制节点label
-		  	if( node.label && isShowNodeLabel ){
+		  	if( node.label && tp.option.isShowNodeLabel ){
 		  		drawNodeLabel(node);
 		  	}
 		}
@@ -889,8 +947,8 @@ function ctopo(opt){
 		}
 
 		function drawEdge(edge){
-			var nodeS = nodes[edge.sourceIndex];
-		    var nodeE = nodes[edge.targetIndex];
+			var nodeS = tp.nodes[edge.sourceIndex];
+		    var nodeE = tp.nodes[edge.targetIndex];
 			context.beginPath();
 			context.strokeStyle=edge.color;
 			context.lineWidth=edge.size;
@@ -905,13 +963,220 @@ function ctopo(opt){
 		this.addEdge = function(edge,isDrawNow){
 			if(typeof edge == "object"){
 				if( typeof edge.source != "undefined" && typeof edge.target != "undefined" ){
-					edge = setEdge(edge,tp.option.style.edge);	//补充字段
-					utils.createIndex(tp.nodes,edge);			//建立索引
-					tp.edges.push(edge);
+					edge = setEdge(edge,this.option.style.edge);	//补充字段
+					utils.createIndex(this.nodes,edge);			//建立索引
+					this.edges.push(edge);
 					if( !!isDrawNow ){
 						render.draw();
 					}
 				}
+			}
+		}
+		this.addNode = function(node,isDrawNow){
+			if(typeof node == "object"){
+				if( typeof node.id != "undefined" ){
+					node = setNode(node,this.option.style.node);	//补充字段
+					this.nodes.push(node);
+					if( !!isDrawNow ){
+						render.draw();
+					}
+				}
+			}
+		}
+		this.draw = function(option){
+			destory(); //注销
+			tp.option = tp.extendMerge(defaultOpt,option?option:{}); //构建初始配置
+			init(); //初始化函数
+		}
+		this.drawData = function(data,isApplyLayout){
+			var bool = false;
+			if( typeof data == "object" ){
+				if( data.nodes instanceof Array && data.edges instanceof Array ){
+					this.nodes = null;						//清空数据
+					this.edges = null;
+					setData(data,this.option.style);				//存入数据
+					utils.createNodeIndex(this.nodes,this.edges);	//建立索引
+					if( !!isApplyLayout ){
+						layout.run(this.option.layout);		//应用布局
+					}
+					render.draw();							//绘制
+					bool = true;
+				}
+			}
+			return bool;
+		}
+		this.edge = function(sid,tid){
+			var edge = null,
+				edges = this.edges;
+			if( typeof sid != "undefined" && typeof tid != "undefined" ){
+				for (var i = 0; i < edges.length; i++) {
+					var e = edges[i];
+					if( e.source == sid && e.target == tid ){
+						edge = e;
+						break;
+					}
+				}
+			}
+			return edge;
+		}
+		this.edgeArray = function(){
+			return this.edges;
+		}
+		this.firstNeighbors = function(nid){
+			neighbors = utils.firstNeighbors(nid);
+			delete neighbors.nodeNotNeighbors;
+			return neighbors;
+		}
+		this.layout = function(conf){
+			var bool = false;
+			if( typeof conf != "undefined" ){
+				if( typeof conf == "object" ){
+					this.option.layout = tp.extendMerge(defaultOpt.layout,conf);
+					layout.run(this.option.layout);		//应用布局
+					render.draw();						//绘制
+				}
+				return bool;
+			}else{
+				return this.option.layout;
+			}
+		}
+		this.node = function(id){
+			var node = null,
+				nodes = this.nodes;
+			if( typeof id != "undefined"){
+				for (var i = 0; i < nodes.length; i++) {
+					var n = nodes[i];
+					if( n.id == id ){
+						node = n;
+						break;
+					}
+				}
+			}
+			return node;
+		}
+		this.nodeLabelsVisible = function(visible){
+			this.option.isShowNodeLabel = !!visible;
+			render.draw();
+		}
+		this.nodeArray = function(){
+			return this.nodes;
+		}
+		this.nodeTooltipsVisible = function(visible){
+			this.option.isShowNodeTooltip = !!visible;
+			render.draw();
+		}
+		this.consolePanelVisible = function(visible){
+			visible = !!visible;
+			visible ? conPanel.show() : conPanel.hide();
+			this.option.isShowConsolePanel = visible;
+		}
+		/*
+		this.ready = function(callback){
+			if( callback instanceof Function ){
+				this.ready = callback;
+			}
+		}
+		*/
+		this.removeEdge = function(sid,tid,isDrawNow){
+			var	edges = this.edges;
+			if( typeof sid != "undefined" && typeof tid != "undefined" ){
+				for (var i = 0; i < edges.length; i++) {
+					var e = edges[i];
+					if( e.source == sid && e.target == tid ){
+						edges.splice(i,1); 	//干掉
+						break;
+					}
+				}
+				if( !!isDrawNow ){
+					render.draw();
+				}
+			}
+		}
+		this.removeNode = function(nid,isDrawNow){
+			var nodes = this.nodes;
+				edges = this.edges;
+			if( typeof nid != "undefined"){
+				//干掉节点
+				for (var i = 0; i < nodes.length; i++) {
+					var n = nodes[i];
+					if( n.id == nid ){
+						nodes.splice(i,1); 	//干掉
+						break;
+					}
+				}
+				//干掉连线
+				for (var i = 0; i < edges.length; i++) {
+					var e = edges[i];
+					if( e.source == nid || e.target == nid ){
+						edges.splice(i,1); 	//干掉
+						break;
+					}
+				}
+				if( !!isDrawNow ){
+					render.draw();
+				}
+			}
+		}
+		this.updateEdge = function(edge,isDrawNow){
+			var edges = this.edges;
+			if( typeof edge == "object"){
+				if( typeof edge.source != "undefined" && typeof edge.target != "undefined" ){
+					for (var i = 0; i < edges.length; i++) {
+						var e = edges[i];
+						if( e.source == edge.source && e.target == edge.target ){
+							this.extendCopy(e,edge);		//属性copy
+							e.originalColor = e.color;
+							break;
+						}
+					}
+					if( !!isDrawNow ){
+						render.draw();
+					}
+				}
+			}
+		}
+		this.updateNode = function(node,isDrawNow){
+			var nodes = this.nodes;
+			if( typeof node == "object"){
+				if( typeof node.id != "undefined" ){
+					for (var i = 0; i < nodes.length; i++) {
+						var n = nodes[i];
+						if( n.id == node.id ){
+							this.extendCopy(n,node);		//属性copy
+							n.originalColor = n.color;
+							break;
+						}
+					}
+					if( !!isDrawNow ){
+						render.draw();
+					}
+				}
+			}
+		}
+		this.style = function(conf){
+			var bool = false;
+			if( typeof conf != "undefined" ){
+				if( typeof conf == "object" ){
+					this.option.style = tp.extendMerge(defaultOpt.style,conf);
+					render.draw();				//绘制
+				}
+				return bool;
+			}else{
+				return this.option.style;
+			}
+		}
+		this.zoom = function(scale){
+			var bool = false;
+			if( typeof scale != "undefined" ){
+				if( typeof scale == "number" ){
+					scale = scale > 1 ? 1 : ( scale < 0 ? 0 : scale );
+					scale = new Number(scale).toFixed(1)*1;
+					utils.setZoom(scale);
+					render.draw();				//绘制
+				}
+				return bool;
+			}else{
+				return conPanel.scale;
 			}
 		}
 	}

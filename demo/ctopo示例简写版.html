@@ -28,10 +28,11 @@
           if(xhr.readyState==4){
               var json = JSON.parse(xhr.responseText);
 
+              //第一步: 转本页第18行
 
               //第二步: 构建配置对象
               var option = {
-                  id:"canvas",    //说明: canvas标签的id
+                  //id:"canvas",    //说明: canvas标签的id,也可以省略,默认取第一个canvas
                   data:json       //说明: 绑定数据
               };
               //第三步: 构建ctopo绘制canvas
