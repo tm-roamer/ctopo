@@ -137,27 +137,6 @@ function ctopo(opt){
 	api;		//api(开放)
 
 	/**
-	 *	初始加载图片(私有方法)
-	 */
-	function itemLoaded(global,callback){
-		if( global.backgroundImage ){
-	  		try{
-	  			appState = STATE_IMAGE_LOAD;
-	  			tp.bgImg = new Image();
-  				tp.bgImg.addEventListener('load',function(){
-			  		callback();
-			  	},false);
-			  	tp.bgImg.src=global.backgroundImage;
-	  		}catch(e){
-	  			callback();
-	  			throw new Error("ctopo backgroundImage load error");
-	  		}finally{}
-		}else{
-			callback();
-		}
-	}
-
-	/**
 	 * topo图初始化方法(私有方法)
 	 */
 	function init(){
@@ -174,11 +153,6 @@ function ctopo(opt){
 
 		//设置canvas的宽度和高度
 		setCanvasWidthHeight(tp.option.width,tp.option.height);
-
-		//初始背景图片渐变
-		if(tp.bgImg){
-			tp.bgPattern = tp.context.createPattern(tp.bgImg,'repeat');
-		}
 
 		//设置节点数组和连线数组,并完成字段的初始工作
 		setData(tp.option.data,tp.option.style);
@@ -199,7 +173,7 @@ function ctopo(opt){
 
 		//开始绘制
 		var date3=new Date().getTime();
-		render.draw();
+		render.itemLoaded( tp.option.style.global,render.draw );
 		var date4=new Date().getTime();
 		console.log("nodes count="+tp.nodes.length+",edges count="+tp.edges.length+",layout time="+(date2-date1)+",draw time="+(date4-date3) );
 	}
@@ -263,22 +237,38 @@ function ctopo(opt){
 			nodes = tp.nodes,
 			edges = tp.edges;
 		for (var i = 0; i < nodes.length; i++) {
-			var node = nodes[i];
-			node.size  = node.size ? node.size : nodeStyle.size;
-			node.color = node.color? node.color: nodeStyle.color;
-			node.textSize  = node.textSize ? node.textSize : nodeStyle.textSize;
-			node.textColor = node.textColor? node.textColor: nodeStyle.textColor; //node对象样式 > 全局样式
-			node.originalColor = node.color;
-			node.x=0;
-			node.y=0;
-			node.tooltip=null;
+			setNode(nodes[i],nodeStyle)
 		}
 		for (var i = 0; i < edges.length; i++) {
-			var edge = edges[i];
-			edge.size  = edge.size ? edge.size : edgeStyle.size;
-			edge.color = edge.color? edge.color: edgeStyle.color; 	//edge对象样式 > 全局样式
-			edge.originalColor = edge.color;
+			setEdge(edges[i],edgeStyle)
 		}
+	}
+
+	/**
+	 *	设置单个节点的字段的初始工作(私有方法)
+	 */
+	function setNode(node,nodeStyle){
+		node.size  = node.size ? node.size : nodeStyle.size;
+		node.color = node.color? node.color: nodeStyle.color;
+		node.textSize  = node.textSize ? node.textSize : nodeStyle.textSize;
+		node.textColor = node.textColor? node.textColor: nodeStyle.textColor; //node对象样式 > 全局样式
+		node.originalColor = node.color;
+		node.x=0;
+		node.y=0;
+		node.tooltip=null;
+		return node;
+	}
+
+	/**
+	 *	设置单个连线的字段的初始工作(私有方法)
+	 */
+	function setEdge(edge,edgeStyle){
+		edge.size  = edge.size ? edge.size : edgeStyle.size;
+		edge.color = edge.color? edge.color: edgeStyle.color; 	//edge对象样式 > 全局样式
+		edge.originalColor = edge.color;
+		edge.sourceIndex = 0;
+		edge.targetIndex = 0;
+		return edge;
 	}
 
 	/**
@@ -298,6 +288,9 @@ function ctopo(opt){
 	 	event = new Event();
 	 	//初始化绘制对象
 	 	render = new Render();
+	 	//初始化API接口
+	 	api = new API();
+	 	tp.extendCopy(tp,api); //属性copy
 	}
 
 	//控制台对象(私有对象)------------------------------------------------
@@ -430,20 +423,23 @@ function ctopo(opt){
 			event.collideNode = obj;
 		}
 
-		//私有函数,创建索引
-		this.createIndexNode = function (nodes,edges){
+		//私有函数,创建索引(数组)
+		this.createNodeIndex = function (nodes,edges){
 			for(var j=0; j<edges.length; j++){
-				var edge = edges[j];
-				for(var i=0; i<nodes.length; i++){
-					var node = nodes[i];
-					if( edge.source == node.id ){
-						edge.sourceIndex = i;
-						continue;
-					}
-					if( edge.target == node.id ){
-						edge.targetIndex = i;
-						continue;
-					}
+				this.createIndex(nodes,edges[j])
+			}
+		}
+		//私有函数,创建索引(单个)
+		this.createIndex = function(nodes,edge){
+			for(var i=0; i<nodes.length; i++){
+				var node = nodes[i];
+				if( edge.source == node.id ){
+					edge.sourceIndex = i;
+					continue;
+				}
+				if( edge.target == node.id ){
+					edge.targetIndex = i;
+					continue;
 				}
 			}
 		}
@@ -577,7 +573,7 @@ function ctopo(opt){
 	function Layout(){
 		this.run=function(layout){
 			try{
-				utils.createIndexNode(tp.nodes,tp.edges);	//(优化)建立索引机制,方便用线查点
+				utils.createNodeIndex(tp.nodes,tp.edges);	//(优化)建立索引机制,方便用线查点
 				if( layout.name === "force" ){
 					this.force(layout.param);
 				}
@@ -808,7 +804,8 @@ function ctopo(opt){
 	//渲染对象(私有对象)------------------------------------------------
 	function Render(){
 
-		var nodes = tp.nodes,
+		var self = this,
+			nodes = tp.nodes,
 			edges = tp.edges,
 			context = tp.context,
 			canvasW = tp.canvas.width,
@@ -822,6 +819,29 @@ function ctopo(opt){
 			drawData();					//绘制数据
 		}
 
+		/**
+		 *	初始加载图片(私有方法)
+		 */
+		this.itemLoaded = function(global,callback){
+			if( global.backgroundImage ){
+		  		try{
+		  			//appState = STATE_IMAGE_LOAD;
+		  			self.bgImg = new Image();
+	  				self.bgImg.addEventListener('load',function(){
+				  		//初始背景图片渐变
+						self.bgPattern = context.createPattern(self.bgImg,'repeat');
+						callback();
+				  	},false);
+				  	self.bgImg.src=global.backgroundImage;
+		  		}catch(e){
+		  			callback();
+		  			throw new Error("ctopo backgroundImage load error");
+		  		}finally{}
+			}else{
+				callback();
+			}
+		}
+
 		function clearCanvas (){
 			context.clearRect(0,0,canvasW,canvasH);
 		}
@@ -830,8 +850,8 @@ function ctopo(opt){
 			context.fillStyle=global.backgroundColor;
 		  	context.fillRect(0,0,canvasW,canvasH);
 		  	//绘制背景网格
-		  	if( tp.bgPattern ){
-		  		context.fillStyle=tp.bgPattern ;
+		  	if( self.bgPattern ){
+		  		context.fillStyle=self.bgPattern ;
 				context.globalAlpha=global.backgourndImageOpacity;
 				context.fillRect(0,0,canvasW,canvasH);
 				context.globalAlpha=1;
@@ -880,9 +900,24 @@ function ctopo(opt){
 		  	context.closePath();
 		}
 	}
+	//API开放接口,会合并到tp上(公开对象)
+	function API(){
+		this.addEdge = function(edge,isDrawNow){
+			if(typeof edge == "object"){
+				if( typeof edge.source != "undefined" && typeof edge.target != "undefined" ){
+					edge = setEdge(edge,tp.option.style.edge);	//补充字段
+					utils.createIndex(tp.nodes,edge);			//建立索引
+					tp.edges.push(edge);
+					if( !!isDrawNow ){
+						render.draw();
+					}
+				}
+			}
+		}
+	}
 	//构建初始配置
 	tp.option = tp.extendMerge(defaultOpt,opt?opt:{});
-	//预加载图片,然后回调初始化函数
-	itemLoaded(tp.option.style.global,init);
+	//初始化函数
+	init();
 	return tp;
 }
