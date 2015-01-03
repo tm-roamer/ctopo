@@ -184,8 +184,8 @@ function ConsolePanel(){
 		if( steerBtnArray ){
 			for(var i=0; i<steerBtnArray.length; i++){
 				var btn = steerBtnArray[i];
-				btn.removeEventListener("mouseenter",mouseenterBtn,false); //悬停
-				btn.removeEventListener("mouseleave",mouseleaveBtn,false); //离开
+				btn.removeEventListener("mouseenter",selectedBtn,false); //悬停
+				btn.removeEventListener("mouseleave",cancelSelectedBtn,false); //离开
 				btn.removeEventListener("click",selectedClickBtn,false); 	   //点击
 			}
 		}
@@ -198,7 +198,7 @@ function ConsolePanel(){
 		if( zoomArray ){
 			for(var i=0; i<zoomArray.length; i++){
 				var btn = zoomArray[i];
-				btn.addEventListener("click",zoomBtn,false); 	//点击
+				btn.removeEventListener("click",zoomBtn,false); 	//点击
 			}
 		}
 		//移除比例尺滑块的鼠标滑轮监听
@@ -212,19 +212,21 @@ function ConsolePanel(){
 	};
 	this.show=function(){
 		var console_panel = document.querySelector("."+self.console_panel);
-		self.initEvent();
 		console_panel.style.visibility="visible";
 	};
 	this.hide=function(){
 		var console_panel = document.querySelector("."+self.console_panel);
 		if( console_panel){
-			self.removeEvent();
 			console_panel.style.visibility="hidden";
-		}	
+		}
+	};
+	this.remove=function(){
+		var console_panel = document.querySelector("."+self.console_panel);
+		document.body.removeChild(console_panel);
 	};
 	this.getDom = function(){
 		var console_panel = document.createElement("div");
-		console_panel.setAttribute("class","console_panel")
+		console_panel.setAttribute("class","console_panel");
 		console_panel.style.visibility="hidden";
 		console_panel.innerHTML='<!-- class名称不建议修改,部分已绑定事件-->'+
 			'<!-- 东西南北 -->'+
