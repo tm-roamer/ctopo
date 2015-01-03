@@ -1,5 +1,7 @@
 /**
- * topo图
+ * canvas版topo图
+ * 作者:田明 
+ * github: https://github.com/tm-roamer/ctopo
  */
 function ctopo(opt){
 	//状态机常量
