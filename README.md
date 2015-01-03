@@ -104,7 +104,7 @@ api接口
 		<tr><td>方法名</td><td>描述</td><td>参数</td><td>返回值</td></tr>
 	</thead>
 	<tbody>
-		<tr>
+				<tr>
 			<td>addEdge(edge,isDrawNow)</td>
 			<td>添加连线</td>
 			<td>
@@ -123,24 +123,39 @@ api接口
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>draw(options)</td>
-			<td>重新绘制画布,用法等于ctopo(options)</td>
+			<td>draw(option)</td>
+			<td>重新绘制画布,<br/>用法等于ctopo(option)</td>
 			<td>
-				参数1: <br/>options初始的配置对象
+				参数1: <br/>option初始的配置对象
 			</td>
 			<td>空</td>
 		</tr>
-		<tr>i
-			<td>edge(sid,tid)</td>
-			<td>取得连线对象</td>
+		<tr>
+			<td>drawData(data,isApplyLayout)</td>
+			<td>局部刷新,只刷新数据</td>
 			<td>
-				参数1: <br/>开始节点id<br/>
-				参数1: <br/>结束节点id
+				参数1: <br/>data格式=optioin.data<br/>
+				参数2: <br/>isApplyLayout是否重新应用布局
 			</td>
-			<td>连线对象</td>
+			<td>空</td>
 		</tr>
 		<tr>
-			<td>edges()</td>
+			<td>edge(sid,tid)</td>
+			<td>
+				取得连线对象<br/>
+				ps:区分方向
+			</td>
+			<td>
+				参数1: <br/>开始节点id<br/>
+				参数2: <br/>结束节点id
+			</td>
+			<td>
+				查到: 连线对象 <br/>
+				没查到: null
+			</td>
+		</tr>
+		<tr>
+			<td>edgeArray()</td>
 			<td>取得所有的连线对象数组</td>
 			<td>
 				无
