@@ -137,7 +137,7 @@ api接口
 				参数1: <br/>data格式=optioin.data<br/>
 				参数2: <br/>isApplyLayout是否重新应用布局
 			</td>
-			<td>空</td>
+			<td>成功true,失败false</td>
 		</tr>
 		<tr>
 			<td>edge(sid,tid)</td>
