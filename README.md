@@ -104,7 +104,7 @@ api接口
 		<tr><td>方法名</td><td>描述</td><td>参数</td><td>返回值</td></tr>
 	</thead>
 	<tbody>
-				<tr>
+		<tr>
 			<td>addEdge(edge,isDrawNow)</td>
 			<td>添加连线</td>
 			<td>
@@ -163,12 +163,13 @@ api接口
 			<td>连线对象数组</td>
 		</tr>
 		<tr>
-			<td>firstNeighbors(node)</td>
-			<td>返回所有关联节点的连线和邻居节点对象</td>
+			<td>firstNeighbors(nid)</td>
+			<td>返回与之关联的连线和节点数组对象</td>
 			<td>
-				参数1: <br/>node待匹配的节点
+				参数1: <br/>nid待匹配的节点id
 			</td>
-			<td>返回与之关联的连线和节点对象<br/>
+			<td>查到:关联数据对象;<br/>
+				没查到:空数组对象<br/>
 				{<br/>
 				edgeNeighbors:[],<br/>
 				nodeNeighbors:[]<br/>
@@ -177,11 +178,14 @@ api接口
 		</tr>
 		<tr>
 			<td>layout(layout)</td>
-			<td>切换使用布局</td>
+			<td>重置切换布局</td>
 			<td>
-				(可选)参数1: <br/>layout对象==初始的option.layout对象
+				(可选)参数1:<br/> layout==option.layout
 			</td>
-			<td>返回初始的option.layout对象</td>
+			<td>
+				无参数:<br/> 返回option.layout<br/>
+				有参数:<br/> 重置布局,<br/>成功true,失败false
+			</td>
 		</tr>
 		<tr>
 			<td>node(id)</td>
@@ -189,29 +193,32 @@ api接口
 			<td>
 				参数1: <br/>节点id
 			</td>
-			<td>节点对象</td>
+			<td>
+				查到:节点对象<br/>
+				没查到:null
+			</td>
 		</tr>
 		<tr>
 			<td>nodeLabelsVisible(visible)</td>
 			<td>设置节点标签是否显示</td>
 			<td>
-				参数1: <br/>visible是否显示标签,布尔型true,false
+				参数1: <br/>visible是否显示标签,<br/>布尔型true,false
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>nodes()</td>
+			<td>nodeArray()</td>
 			<td>取得所有节点对象数组</td>
 			<td>
 				无
 			</td>
-			<td>所有节点对象数组</td>
+			<td>节点对象数组</td>
 		</tr>
 		<tr>
 			<td>nodeTooltipsVisible(visible)</td>
-			<td>设置节点提示是否显示</td>
+			<td>设置节点提示框是否显示</td>
 			<td>
-				参数1: <br/>visible是否显示标签,布尔型true,false
+				参数1: <br/>visible是否显示提示框,<br/>布尔型true,false
 			</td>
 			<td>空</td>
 		</tr>
@@ -219,15 +226,7 @@ api接口
 			<td>consolePanelVisible(visible)</td>
 			<td>设置控制台是否显示</td>
 			<td>
-				参数1: <br/>visible是否显示标签,布尔型true,false
-			</td>
-			<td>空</td>
-		</tr>
-		<tr>
-			<td>ready(fn)</td>
-			<td>当topo图加载完成后执行的方法</td>
-			<td>
-				参数1: <br/>fn当topo加载完成执行的回调函数
+				参数1: <br/>visible是否显示控制台,<br/>布尔型true,false
 			</td>
 			<td>空</td>
 		</tr>
@@ -243,7 +242,7 @@ api接口
 		</tr>
 		<tr>
 			<td>removeNode(id,isDrawNow)</td>
-			<td>删除节点</td>
+			<td>删除节点,与之关联的线也删除</td>
 			<td>
 				参数1: <br/>节点id <br/>
 				参数2: <br/>是否立刻渲染到屏幕
@@ -251,31 +250,44 @@ api接口
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>updateEdge(sid,tid,isDrawNow)</td>
+			<td>updateEdge(edge,isDrawNow)</td>
 			<td>更新连线</td>
 			<td>
-				参数1: <br/>开始节点id <br/>
-				参数2: <br/>结束节点id <br/>
+				参数1: <br/>连线对象 <br/>
 				参数3: <br/>是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
-			<td>updateNode(id,isDrawNow)</td>
+			<td>updateNode(node,isDrawNow)</td>
 			<td>更新节点</td>
 			<td>
-				参数1: <br/>节点id <br/>
+				参数1: <br/>节点对象 <br/>
 				参数2: <br/>是否立刻渲染到屏幕
 			</td>
 			<td>空</td>
 		</tr>
 		<tr>
 			<td>style(style)</td>
-			<td>取得样式对象</td>
+			<td>重置切换样式</td>
 			<td>
-				参数1: <br/>style等于初始化配置对象option.style
+				(可选)参数1: <br/>style==option.style
 			</td>
-			<td>样式对象</td>
+			<td>
+				无参数: <br/>返回option.style
+				有参数: <br/>重置样式,<br/>成功true,失败false
+			</td>
+		</tr>
+		<tr>
+			<td>zoom(scale)</td>
+			<td>设置缩放比例(0-1)</td>
+			<td>
+				(可选)参数1: <br/>scale比例0-1,100%=0.5<br/>
+			</td>
+			<td>
+				无参数:<br/> 返回比例值<br/>
+				有参数:<br/> 设置比例值,<br/>成功ture,失败false
+			</td>
 		</tr>
 	</tbody>
 </table>
