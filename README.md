@@ -20,10 +20,38 @@ ps: 因为ff,chrome不支持本地请求json文件, 将整体工程放到本服�
 -----
   ie9+,firefox,chrome,safari.
    
-性能
+性能说明
 -----
-  目前还在调优,200+节点毫无压力,顺畅的没有朋友,实测5000+节点可以显示,没有操作感.
+  目前还在调优,200+节点毫无压力,顺畅的没有朋友,正常使用尽量控制在200左右.
+  节点的碰撞检测5千节点1ms左右,
 
+  ps: 绘制节点标签还是挺吃性能的
+
+	绘制节点不带label
+		//ff     直接挂了
+		//chrome nodes count=1000,edges count=1000,layout time=4838,draw time=9
+
+		//ff     nodes count=500,edges count=500,layout time=9543,draw time=19
+		//chrome nodes count=500,edges count=500,layout time=1272,draw time=6
+
+		//ff     nodes count=300,edges count=300,layout time=3445,draw time=11
+		//chrome nodes count=300,edges count=300,layout time=475,draw time=4
+
+		//ff     nodes count=200,edges count=200,layout time=1551,draw time=7
+		//chrome nodes count=200,edges count=200,layout time=233,draw time=4
+	
+	绘制节点带label
+		//ff     直接挂了
+		//chrome nodes count=1000,edges count=1000,layout time=4838,draw time=39
+
+		//ff     nodes count=500,edges count=500,layout time=9543,draw time=125
+		//chrome nodes count=500,edges count=500,layout time=1272,draw time=23
+
+		//ff     nodes count=300,edges count=300,layout time=3445,draw time=77
+		//chrome nodes count=300,edges count=300,layout time=475,draw time=16
+
+		//ff     nodes count=200,edges count=200,layout time=1551,draw time=49
+		//chrome nodes count=200,edges count=200,layout time=233,draw time=10
 缺点
 -----
   (1)性能差一点<br/>
