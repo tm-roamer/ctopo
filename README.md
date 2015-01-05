@@ -128,7 +128,21 @@ api接口
 		var nodeB = ctopo.node("0724"); //获取节点B
 		var edge = ctopo.edge("1108","0724"); //获取连线
 		
-### 接口表
+### 属性和方法
+<table>
+	<thead>
+		<tr><td>属性名</td><td>描述</td></tr>
+	</thead>
+	<tbody>
+		<tr><td>version</td><td>版本</td></tr>
+		<tr><td>option</td><td>配置对象</td></tr>
+		<tr><td>canvas</td><td>画布对象</td></tr>
+		<tr><td>context</td><td>画布上下文对象</td></tr>
+		<tr><td>nodes</td><td>节点数组</td></tr>
+		<tr><td>edges</td><td>连线对象</td></tr>
+	</tbody>
+</table>
+
 <table>
 	<thead>
 		<tr><td>方法名</td><td>描述</td><td>参数</td><td>返回值</td></tr>
