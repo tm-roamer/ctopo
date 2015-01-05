@@ -16,6 +16,8 @@ function ctopo(opt){
       	isShowConsolePanel:true,   //说明: 是否显示控制台,      写法: true,false,  默认true
       	isShowNodeLabel:true,      //说明: 是否显示节点文字,    写法: true,false,  默认true
       	isShowNodeTooltip:false,   //说明: 是否显示节点提示框,  写法: true,false,  默认false
+      	isShowEdgeLabel:false,     //说明: 是否显示节点文字,    写法: true,false,  默认false
+      	isShowEdgeTooltip:false,   //说明: 是否显示节点提示框,  写法: true,false,  默认false
       	isHoverNodeLight:true,     //说明: 是否悬停节点高亮,    写法: true,false,  默认true
       	style:{                    //说明: 全局样式
         	global:{
@@ -34,7 +36,9 @@ function ctopo(opt){
 	        },
 	        edge:{
 	          color:"#c2c2c2",     //说明: 连线颜色, 支持fillstyle所有原生写法, 优先级低于节点自带属性, 默认#c2c2c2
-	              size:1               //说明: 连线宽度, 优先级低于节点自带属性, 默认1px
+              size:1,              //说明: 连线宽度, 优先级低于节点自带属性, 默认1px
+              textColor:"#878787", //说明: 节点Label颜色, 优先级低于节点自带属性, 默认#878787
+              textSize:10          //说明: 节点Label字体大小, 优先级低于节点自带属性, 默认10px
 	        }
           },
         layout:{
@@ -81,8 +85,12 @@ function ctopo(opt){
               {
                 source:"开始节点id", //说明: 必填项, 开始节点id
                 target:"结束节点id"  //说明: 必填项, 结束节点id
+                label:"显示标签",    //说明: 显示标签, 默认null
+                tooltip:"悬停文字",  //说明: 悬停文字, 默认null
                 color:"#c2c2c2",     //说明: 连线颜色, 支持fillstyle所有原生写法, 优先级高于全局样式, 不配置默认等于全局样式
                 size:1               //说明: 连线宽度, 优先级高于全局样式, 不配置默认等于全局样式
+                textColor:"#878787", //说明: 节点Label颜色, 优先级高于全局样式, 不配置默认等于全局样式
+                textSize:10          //说明: 节点Label字体大小, 优先级高于全局样式, 不配置默认等于全局样式
                 //保留字段           //说明: 保留字段不可使用
                                      //       originalColor=color,保存初始颜色,方便颜色变换
                                      //       sourceIndex,targetIndex=开始和结束节点在nodes数组的索引值
@@ -101,7 +109,10 @@ function ctopo(opt){
             scale:null,       	   //说明: 放大缩小的回调
             clickNode:null,        //说明: 点击节点的回调
             hoverNode:null,        //说明: 悬停节点的回调
-            leaveNode:null         //说明: 离开节点的回调
+            leaveNode:null,        //说明: 离开节点的回调
+            clickEdge:null,        //说明: 点击连线的回调
+            hoverEdge:null,        //说明: 悬停连线的回调
+            leaveEdge:null         //说明: 离开连线的回调
         }
 	},
 	//topo对象
@@ -161,8 +172,6 @@ function ctopo(opt){
 
 		//初始化对象
 		initObject();
-
-		//tp.ready();
 
 		//应用布局
 		var date1=new Date().getTime();
@@ -291,6 +300,7 @@ function ctopo(opt){
 		node.originalColor = node.color;
 		node.x=node.x ? node.x : 0;
 		node.y=node.y ? node.y : 0;
+		node.label = node.label ? node.label : null;
 		node.tooltip=node.tooltip ? node.tooltip : null;
 		return node;
 	}
@@ -300,10 +310,14 @@ function ctopo(opt){
 	 */
 	function setEdge(edge,edgeStyle){
 		edge.size  = edge.size ? edge.size : edgeStyle.size;
-		edge.color = edge.color? edge.color: edgeStyle.color; 	//edge对象样式 > 全局样式
+		edge.color = edge.color? edge.color: edgeStyle.color; 				//edge对象样式 > 全局样式
+		edge.textSize  = edge.textSize ? edge.textSize : edgeStyle.textSize;
+		edge.textColor = edge.textColor? edge.textColor: edgeStyle.textColor;
 		edge.originalColor = edge.color;
 		edge.sourceIndex = 0;
 		edge.targetIndex = 0;
+		edge.label = edge.label ? edge.label : null;
+		edge.tooltip = edge.tooltip ? edge.tooltip : null;
 		return edge;
 	}
 
@@ -372,12 +386,21 @@ function ctopo(opt){
 		if( !tip ){
 			document.body.insertBefore(getDom(),document.body.firstChild); //插入html
 		}
-		this.chooseDisplay = function(node,ex,ey){
+		this.chooseDisplay = function(node,edge,ex,ey){
 			if( tp.option.isShowNodeTooltip ){
 				if( node ){
 					if( node.tooltip ){
-						//node.tooltip="192.1596.fsdfs";
 						show(node,ex,ey);
+						return; 	//因为node悬停优先级高于edge
+					}
+				}else{
+					hide();
+				}
+			}
+			if( tp.option.isShowEdgeTooltip ){
+				if( edge ){
+					if( edge.tooltip ){
+						show(edge,ex,ey);
 					}
 				}else{
 					hide();
@@ -408,27 +431,27 @@ function ctopo(opt){
 					'padding: 5px;'; 
 			return tip;
 		}
-		function show(node,ex,ey){
+		function show(element,ex,ey){
 			var tip = document.querySelector("."+name);
-			var coord = computePosition(node,ex,ey);
+			var coord = computePosition(element,ex,ey);
 			tip.style.top=coord.top+"px";
 			tip.style.left=coord.left+"px";
-			tip.innerHTML=node.tooltip;
+			tip.innerHTML=element.tooltip;
 			tip.style.visibility="visible";
 		}
 		function hide(){
 			var tip = document.querySelector("."+name);
 			tip.style.visibility="hidden";
 		}
-		function computePosition(node,ex,ey){
+		function computePosition(element,ex,ey){
 			var coord={},
 				textH=28,
-				textW=computeTextWidth(node.tooltip)+10, //+pading
+				textW=computeTextWidth(element.tooltip)+10, //+pading
 				canvasW=tp.canvas.width,
 				canvasH=tp.canvas.height;
 			//边界判断
 			coord.top = ey <= textH/2 ? 0 : ( ey>=canvasH-textH/2 ? canvasH-textH/2 : ey-textH/2);
-			coord.left = ex >= canvasW-node.size-textW ? (ex-node.size/2-textW) : ex+node.size/2;
+			coord.left = ex >= canvasW-element.size-textW ? (ex-element.size/2-textW) : ex+element.size/2;
 			return coord;
 		}
 		function computeTextWidth(text){
@@ -449,7 +472,7 @@ function ctopo(opt){
 			},time);
 		}
 
-		//节点的碰撞检测 ff:1万节点15ms,chrome:1万节点第一次运行20ms,以后1ms
+		//节点的碰撞检测 ff,chrome:5000节点1ms
 		this.collideNode=function(nodes,ex,ey){
 			var obj = null;
 			for(var i=0; i<nodes.length; i++){
@@ -460,9 +483,38 @@ function ctopo(opt){
 	        	//console.log("diff="+diff+",diffx="+diffx+",diffy="+diffy);
 	        	if( diff <= node.size/2 ){    //碰撞了
 	        		obj = node;
+	        		break;
 	        	}
 			}
 			event.collideNode = obj;
+		}
+		//连线的碰撞检测 ff,chrome:5000连线1ms
+		this.collideEdge=function(nodes,edges,ex,ey){
+			var obj = null;
+			for(var i=0; i<edges.length; i++){
+				var edge = edges[i],
+					nodeS = nodes[edge.sourceIndex],
+					nodeE = nodes[edge.targetIndex],
+					diffx = nodeE.x - nodeS.x,	//节点之间水平间距
+	        		diffy = nodeE.y - nodeS.y,	//节点之间垂直间距
+	        		ediffx1 = diffx < 0 ? ex - nodeE.x : ex - nodeS.x, //鼠标与起点水平间距,用于计算区间
+	        		ediffy1 = diffy < 0 ? ey - nodeE.y : ey - nodeS.y, //鼠标与起点垂直间距
+	        		ediffx2 = ex - nodeS.x,		//鼠标与起点水平间距,用于计算夹角
+	        		ediffy2 = ey - nodeS.y;		//鼠标与起点垂直间距
+	        	//先判断区间
+				if( (0 <= ediffx1 && Math.abs(ediffx1) <= Math.abs(diffx) ) && 
+					(0 <= ediffy1 && Math.abs(ediffy1) <= Math.abs(diffy) ) ){
+					//再判断反正切夹角
+					var angle = (Math.atan(diffx/diffy)*180/Math.PI ).toFixed(0);
+		        	var eangle = (Math.atan(ediffx2/ediffy2)*180/Math.PI ).toFixed(0);
+		        	if( angle == eangle ){    //碰撞了
+		        		obj = edge;
+		        		break;
+		        	}
+		        	//优化: 鼠标位置来计算起点还是终点的夹角,增加命中几率
+				}
+			}
+			event.collideEdge = obj;
 		}
 
 		//私有函数,创建索引(数组)
@@ -816,12 +868,22 @@ function ctopo(opt){
 				}
 				//不是拖拽,那就是没有mousedown,那就是悬停
 				else{
-					//判断是node还是canvas
+					//碰撞检测,是否点击了节点
 					utils.collideNode(tp.nodes,e.pageX,e.pageY);
+					//碰撞检测,是否点击了连线
+					utils.collideEdge(tp.nodes,tp.edges,e.pageX,e.pageY);
 					//悬停节点高亮绘制
 					utils.firstNeighborsDraw(self.collideNode);
-					//悬停节点出现悬停提示框
-					tooltip.chooseDisplay(self.collideNode,e.pageX,e.pageY);
+					//悬停节点或连线出现悬停提示框
+					tooltip.chooseDisplay(self.collideNode,self.collideEdge,e.pageX,e.pageY);
+					//控制手型
+					if( self.collideNode || self.collideEdge ){
+						//切换手型
+						tp.canvas.style.cursor="pointer";
+					}else{
+						//取消手型
+						tp.canvas.style.cursor="";
+					}
 					//判断hover是不是节点
 					if( self.collideNode ){
 						//回调
@@ -832,6 +894,18 @@ function ctopo(opt){
 						//回调
 						if( tp.option.event.leaveNode ){ 
 							tp.option.event.leaveNode(e);
+						}
+					}
+					//判断hover是不是连线
+					if( self.collideEdge ){
+						//回调
+						if( tp.option.event.hoverEdge ){ 
+							tp.option.event.hoverEdge(e,self.collideEdge);
+						}
+					}else{
+						//回调
+						if( tp.option.event.leaveEdge ){ 
+							tp.option.event.leaveEdge(e);
 						}
 					}
 				}
@@ -847,13 +921,21 @@ function ctopo(opt){
 		this.canvasClick = function (e){
 			//判断是node还是canvas
 			utils.collideNode(tp.nodes,e.pageX,e.pageY);
-			//判断mouseDown是节点还是屏幕
+			//碰撞检测,是否点击了连线
+			utils.collideEdge(tp.nodes,tp.edges,e.pageX,e.pageY);
+			//判断click是不是节点
 			if( self.collideNode ){
-				if( tp.option.event.clickNode ){ //回调
+				if( tp.option.event.clickNode ){ 	//回调
 					tp.option.event.clickNode(e,self.collideNode);
 				}
-			}else{
-				//alert("canvas");
+				return; //节点优先级高于连线
+			}
+			//判断click是不是连线
+			if( self.collideEdge ){
+				if( tp.option.event.clickEdge ){ 	//回调
+					tp.option.event.clickEdge(e,self.collideEdge);
+				}
+				return;
 			}
 		}
 		this.destory=function(){
@@ -958,6 +1040,19 @@ function ctopo(opt){
 		 	context.lineTo(nodeE.x,nodeE.y);
 		  	context.stroke();
 		  	context.closePath();
+		  	//绘制连线label
+		  	if( edge.label && tp.option.isShowEdgeLabel ){
+		  		drawEdgeLabel(nodeS,nodeE,edge);
+		  	}
+		}
+
+		function drawEdgeLabel(nodeS,nodeE,edge){
+			var textWidth = context.measureText(edge.label).width, //文字宽
+				textX = nodeS.x + (nodeE.x-nodeS.x)/2 - textWidth/2 ,
+				textY = nodeS.y + (nodeE.y-nodeS.y)/2 - textWidth/2 ;
+			context.fillStyle=edge.textColor;
+			context.font=edge.textSize+"px serif";
+			context.fillText(edge.label,Math.abs(textX),Math.abs(textY)+edge.textSize );
 		}
 	}
 	//API开放接口,会合并到tp上(公开对象)
@@ -1056,12 +1151,20 @@ function ctopo(opt){
 			}
 			return node;
 		}
+		this.edgeLabelsVisible = function(visible){
+			this.option.isShowEdgeLabel = !!visible;
+			render.draw();
+		}
 		this.nodeLabelsVisible = function(visible){
 			this.option.isShowNodeLabel = !!visible;
 			render.draw();
 		}
 		this.nodeArray = function(){
 			return this.nodes;
+		}
+		this.edgeTooltipsVisible = function(visible){
+			this.option.isShowEdgeTooltip = !!visible;
+			render.draw();
 		}
 		this.nodeTooltipsVisible = function(visible){
 			this.option.isShowNodeTooltip = !!visible;
@@ -1072,13 +1175,6 @@ function ctopo(opt){
 			visible ? conPanel.show() : conPanel.hide();
 			this.option.isShowConsolePanel = visible;
 		}
-		/*
-		this.ready = function(callback){
-			if( callback instanceof Function ){
-				this.ready = callback;
-			}
-		}
-		*/
 		this.removeEdge = function(sid,tid,isDrawNow){
 			var	edges = this.edges;
 			if( typeof sid != "undefined" && typeof tid != "undefined" ){
