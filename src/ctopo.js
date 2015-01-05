@@ -44,6 +44,7 @@ function ctopo(opt){
         layout:{
         	name:"force",          //说明: 布局方式,支持force力导向和preset预设, 默认force
         	param:{
+        	  isScale : false,     //说明: 默认第一次应用布局,是否自适应屏幕宽高,等比例缩放,默认false
 	          isRandom : false,    //说明: 默认初始位置是随机Random还是定位location,默认false
 	          initAreaW : 100,     //说明: 初始分布是的初始宽,默认100px
 	          initAreaH : 56,      //说明: 初始分布是的初始高,默认56px
@@ -704,6 +705,7 @@ function ctopo(opt){
 				canvasH = tp.canvas.height,
 				canvasArea = canvasW*canvasH,			//画布的面积
 				k = Math.sqrt( canvasArea / nodes.length )*param.energy, //求出每个节点的能量
+				isScale = param.isScale,				//默认第一次应用布局,是否自适应屏幕宽高,等比例缩放
 				isRandom = param.isRandom,			    //默认初始位置是随机Random还是定位location
 				initAreaW = param.initAreaW,			//随机分布是的初始宽
 				initAreaH = param.initAreaH,			//随机分布是的初始高
@@ -721,9 +723,11 @@ function ctopo(opt){
 			repeatLayout(nodes,edges);
 			
 			//检测屏幕是否需要缩放
-			while( utils.testIsScale(nodes,canvasW,canvasH,conPanel.scale) ){
-				//(优化)自动缩放比例适应屏幕
-				utils.setZoom(conPanel.scale-0.1);
+			if( isScale ){
+				while( utils.testIsScale(nodes,canvasW,canvasH,conPanel.scale) ){
+					//(优化)自动缩放比例适应屏幕
+					utils.setZoom(conPanel.scale-0.1);
+				}
 			}
 			//1. 随机分布初始节点位置
 			function randomCoord(nodes){
