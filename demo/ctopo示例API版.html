@@ -28,6 +28,8 @@
           isShowConsolePanel:true,   //说明: 是否显示控制台,      写法: true,false,  默认true
           isShowNodeLabel:true,      //说明: 是否显示节点文字,    写法: true,false,  默认true
           isShowNodeTooltip:false,   //说明: 是否显示节点提示框,  写法: true,false,  默认false
+          isShowEdgeLabel:false,     //说明: 是否显示节点文字,    写法: true,false,  默认false
+          isShowEdgeTooltip:false,   //说明: 是否显示节点提示框,  写法: true,false,  默认false
           isHoverNodeLight:true,     //说明: 是否悬停节点高亮,    写法: true,false,  默认true
           style:{                    //说明: 全局样式
             global:{
@@ -46,7 +48,9 @@
             },
             edge:{
               color:"#c2c2c2",     //说明: 连线颜色, 支持fillstyle所有原生写法, 优先级低于节点自带属性, 默认#c2c2c2
-              size:1               //说明: 连线宽度, 优先级低于节点自带属性, 默认1px
+              size:1,              //说明: 连线宽度, 优先级低于节点自带属性, 默认1px
+              textColor:"#878787", //说明: 节点Label颜色, 优先级低于节点自带属性, 默认#878787
+              textSize:10          //说明: 节点Label字体大小, 优先级低于节点自带属性, 默认10px
             }
           },
           layout:{
@@ -93,8 +97,12 @@
               {
                 source:"开始节点id", //说明: 必填项, 开始节点id
                 target:"结束节点id"  //说明: 必填项, 结束节点id
+                label:"显示标签",    //说明: 显示标签, 默认null
+                tooltip:"悬停文字",  //说明: 悬停文字, 默认null
                 color:"#c2c2c2",     //说明: 连线颜色, 支持fillstyle所有原生写法, 优先级高于全局样式, 不配置默认等于全局样式
                 size:1               //说明: 连线宽度, 优先级高于全局样式, 不配置默认等于全局样式
+                textColor:"#878787", //说明: 节点Label颜色, 优先级高于全局样式, 不配置默认等于全局样式
+                textSize:10          //说明: 节点Label字体大小, 优先级高于全局样式, 不配置默认等于全局样式
                 //保留字段           //说明: 保留字段不可使用
                                      //       originalColor=color,保存初始颜色,方便颜色变换
                                      //       sourceIndex,targetIndex=开始和结束节点在nodes数组的索引值
@@ -122,6 +130,15 @@
               //console.log(node);
             },
             leaveNode:function(e){            //说明: 离开节点的回调, e=event
+              //console.log(e);
+            },
+            clickEdge:function(e,edge){       //说明: 点击连线的回调, e=event,edge=被点击连线
+              //console.log(edge);
+            },
+            hoverEdge:function(e,edge){       //说明: 悬停连线的回调, e=event,edge=被悬停连线
+              //console.log(edge);
+            },
+            leaveEdge:function(e){            //说明: 离开连线的回调, e=event
               //console.log(e);
             }
           }
@@ -226,6 +243,12 @@
            */
           //tp.nodeLabelsVisible(false);
           /**
+           *  设置连线标签是否显示
+           *  参数: visible 是否显示标签,布尔型true,false
+           *  返回值: 无
+           */
+          //tp.edgeLabelsVisible(false);
+          /**
            *  取得节点数组
            *  参数: 无
            *  返回值: 节点数组
@@ -238,6 +261,12 @@
            *  返回值: 无
            */
           //tp.nodeTooltipsVisible(false);
+          /**
+           *  设置连线提示框是否显示
+           *  参数: visible 是否显示提示框,布尔型true,false
+           *  返回值: 无
+           */
+          //tp.edgeTooltipsVisible(false);
           /**
            *  设置控制台是否显示
            *  参数: visible是否显示控制台,<br/>布尔型true,false

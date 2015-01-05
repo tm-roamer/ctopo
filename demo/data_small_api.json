@@ -25,7 +25,9 @@
         
         {
             "source": "3",
-            "target": "4"
+            "target": "4",
+            "label": "3-4",
+            "tooltip": "3-4"
         }
     ]
 }
