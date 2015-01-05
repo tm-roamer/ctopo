@@ -58,9 +58,8 @@ ps: 因为ff,chrome不支持本地请求json文件, 将整体工程放到本服�
   (1)性能差一点<br/>
   (2)连线没有箭头<br/>
   (3)动画api还没有制作<br/>
-  (4)还未支持点击连线和悬停连线<br/>
-  (5)不支持节点图片和图标<br/>
-  (6)不支持框选操作
+  (4)不支持节点图片和图标<br/>
+  (5)不支持框选操作
 
 特性
 -----
@@ -238,6 +237,14 @@ api接口
 			<td>空</td>
 		</tr>
 		<tr>
+			<td>edgeLabelsVisible(visible)</td>
+			<td>设置连线标签是否显示</td>
+			<td>
+				参数1: <br/>visible是否显示标签,<br/>布尔型true,false
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
 			<td>nodeArray()</td>
 			<td>取得所有节点对象数组</td>
 			<td>
@@ -248,6 +255,14 @@ api接口
 		<tr>
 			<td>nodeTooltipsVisible(visible)</td>
 			<td>设置节点提示框是否显示</td>
+			<td>
+				参数1: <br/>visible是否显示提示框,<br/>布尔型true,false
+			</td>
+			<td>空</td>
+		</tr>
+		<tr>
+			<td>edgeTooltipsVisible(visible)</td>
+			<td>设置连线提示框是否显示</td>
 			<td>
 				参数1: <br/>visible是否显示提示框,<br/>布尔型true,false
 			</td>
