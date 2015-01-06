@@ -14,11 +14,12 @@ function ctopo(opt){
       	width:"auto",   //说明: canvas的宽度,       写法: 500,500px,50%,auto,默认auto
       	height:"auto",  //说明: canvas的高度,       写法: 500,500px,50%,auto,默认auto
       	isShowConsolePanel:true,   //说明: 是否显示控制台,      写法: true,false,  默认true
+      	isHoverNodeLight:true,     //说明: 是否悬停节点高亮,    写法: true,false,  默认true
       	isShowNodeLabel:true,      //说明: 是否显示节点文字,    写法: true,false,  默认true
       	isShowNodeTooltip:false,   //说明: 是否显示节点提示框,  写法: true,false,  默认false
-      	isShowEdgeLabel:false,     //说明: 是否显示节点文字,    写法: true,false,  默认false
-      	isShowEdgeTooltip:false,   //说明: 是否显示节点提示框,  写法: true,false,  默认false
-      	isHoverNodeLight:true,     //说明: 是否悬停节点高亮,    写法: true,false,  默认true
+      	isShowEdgeLabel:false,     //说明: 是否显示连线文字,    写法: true,false,  默认false
+      	isShowEdgeTooltip:false,   //说明: 是否显示连线提示框,  写法: true,false,  默认false
+      	isShowEdgeArrow:false,	   //说明: 是否显示连线箭头,  	写法: true,false,  默认false
       	style:{                    //说明: 全局样式
         	global:{
           		backgroundColor:"#ffffff",  //说明: 支持fillstyle所有原生写法, 例: rgba(255,255,255,1),默认#ffffff
@@ -685,6 +686,58 @@ function ctopo(opt){
 			}
 			return bool;
 		}
+		/**
+		 *	计算箭头平移位置
+		 */
+		this.computeArrowTranslate = function (dx,dy,radian,nodeE){
+			//计算偏移
+			var ox = 0,
+				oy = 0,
+				arrawW=6,
+				arrawHalfW=arrawW/2,
+				x = nodeE.x,
+				y = nodeE.y,
+				radius = nodeE.size/2;
+			if( dx == 0 ){
+				y = dy > 0 ? y-radius-arrawHalfW : y+radius+arrawHalfW ;
+			}else if( dy == 0 ){
+				x = dx > 0 ? x-radius-arrawHalfW : x+radius+arrawHalfW ;
+			}else{
+				ox = Math.ceil( (radius+arrawHalfW)*Math.cos( Math.abs(radian) ) );
+				oy = Math.ceil( (radius+arrawHalfW)*Math.sin( Math.abs(radian) ) );
+				x = dx > 0 ? x-ox : x+ox ;
+				y = dy > 0 ? y-oy : y+oy ;
+			}
+			return {x:x,y:y};
+		}
+		/**
+		 *	计算箭头旋转角度
+		 */
+		this.computeArrowRotate = function (dx,dy,angle){
+			//第一步,取得夹角,x轴正方向为0度的顺时针0-360范围
+			if( dx==0 || dy==0 ){
+			  if( dx < 0 ){
+			    angle = 180;
+			  }
+			  if( dy < 0 ){
+			    angle = 270;
+			  }
+			}else{
+			  if( dx > 0 && dy > 0){ 		//4
+			    //angle = angle;
+			  }else if( dx > 0 && dy < 0 ){ //1
+			    angle = 360 - Math.abs(angle);
+			  }else if( dx < 0 && dy > 0 ){ //3
+			    angle = 180 - Math.abs(angle);
+			  }else if( dx < 0 && dy < 0 ){ //2
+			    angle = 180 + Math.abs(angle);
+			  }
+			}
+			//第二步,转换成context.rotate适用的的y轴正方向为0度的0-360范围
+			angle = angle+90 >= 360 ? (angle+90)%360 : angle+90;
+			//第三步,角度变弧度
+			return angle*Math.PI/180;
+		}
 	}
 	//布局对象(私有对象)------------------------------------------------
 	function Layout(){
@@ -1048,6 +1101,10 @@ function ctopo(opt){
 		  	if( edge.label && tp.option.isShowEdgeLabel ){
 		  		drawEdgeLabel(nodeS,nodeE,edge);
 		  	}
+		  	//绘制箭头
+		  	if( tp.option.isShowEdgeArrow ){
+		  		drawArrow(nodeS,nodeE);
+		  	}
 		}
 
 		function drawEdgeLabel(nodeS,nodeE,edge){
@@ -1057,6 +1114,35 @@ function ctopo(opt){
 			context.fillStyle=edge.textColor;
 			context.font=edge.textSize+"px serif";
 			context.fillText(edge.label,Math.abs(textX),Math.abs(textY)+edge.textSize );
+		}
+
+		/**
+		 *	绘制箭头(6px*6px)
+		 */
+		function drawArrow(nodeS,nodeE){
+			//计算箭头位置
+			var dx = nodeE.x - nodeS.x,
+				dy = nodeE.y - nodeS.y,
+				radian = Math.atan(dy/dx),
+				angle  = radian *180 / Math.PI,
+				coord = utils.computeArrowTranslate(dx,dy,radian,nodeE),
+				angleRadian = utils.computeArrowRotate(dx,dy,angle);
+
+			//将画布保存到栈中
+			context.save();		
+			context.setTransform(1,0,0,1,0,0);	//恢复初始值
+			context.translate(coord.x,coord.y);	//平移
+			context.rotate( angleRadian );		//旋转
+			context.beginPath();
+			context.fillStyle=nodeE.color;
+			//定位到箭头中心点
+			context.moveTo(0,-3);
+			context.lineTo(3,3);
+			context.lineTo(-3,3);
+			context.lineTo(0,-3);
+		  	context.fill();
+		  	context.closePath();
+		  	context.restore();
 		}
 	}
 	//API开放接口,会合并到tp上(公开对象)
@@ -1157,6 +1243,10 @@ function ctopo(opt){
 		}
 		this.edgeLabelsVisible = function(visible){
 			this.option.isShowEdgeLabel = !!visible;
+			render.draw();
+		}
+		this.edgeArrowsVisible = function(visible){
+			this.option.isShowEdgeArrow = !!visible;
 			render.draw();
 		}
 		this.nodeLabelsVisible = function(visible){
