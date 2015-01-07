@@ -13,6 +13,7 @@ function ctopo(opt){
 		id:"",    		//说明: canvas标签的id,     写法: canvas , #canvas
       	width:"auto",   //说明: canvas的宽度,       写法: 500,500px,50%,auto,默认auto
       	height:"auto",  //说明: canvas的高度,       写法: 500,500px,50%,auto,默认auto
+      	isOnAnimateBall:false,	   //说明: 是否启动连线的动画球 写法: true,false,  默认:false
       	isShowConsolePanel:true,   //说明: 是否显示控制台,      写法: true,false,  默认true
       	isHoverNodeLight:true,     //说明: 是否悬停节点高亮,    写法: true,false,  默认true
       	isShowNodeLabel:true,      //说明: 是否显示节点文字,    写法: true,false,  默认true
@@ -149,6 +150,7 @@ function ctopo(opt){
 	utils,		//工具对象(私有)
 	event,		//监听对象(私有)
 	layout,		//布局对象(私有)
+	animate,	//动画对象(私有)
 	api;		//api(开放)
 
 	/**
@@ -187,10 +189,17 @@ function ctopo(opt){
 		appState = STATE_INIT_OVER;
 
 		//开始绘制
-		var date3=new Date().getTime();
-		render.itemLoaded( tp.option.style.global,render.draw );
-		var date4=new Date().getTime();
-		console.log("nodes count="+tp.nodes.length+",edges count="+tp.edges.length+",layout time="+(date2-date1)+",draw time="+(date4-date3) );
+		//var date3=new Date().getTime();
+		render.itemLoaded( tp.option.style.global,function(){
+			//是否启动动画
+			if( tp.option.isOnAnimateBall ){
+				animate.init(tp.nodes,tp.edges);
+			}else{
+				render.draw();
+			}
+		});
+		//var date4=new Date().getTime();
+		//console.log("nodes count="+tp.nodes.length+",edges count="+tp.edges.length+",layout time="+(date2-date1)+",draw time="+(date4-date3) );
 	}
 
 	/**
@@ -209,6 +218,8 @@ function ctopo(opt){
 	 		canvasClone = canvas.cloneNode(true);
 	 	document.body.insertBefore(canvasClone,canvas);
 	 	document.body.removeChild(canvas);
+	 	//清理定时器
+	 	animate.destory();
 	 	//对象
 	 	conPanel = null;	//注销控制台对象
 	 	tooltip = null;		//注销悬停提示框对象
@@ -216,6 +227,7 @@ function ctopo(opt){
 	 	layout = null;		//注销布局对象
 	 	event = null;		//注销监听对象
 	 	render = null;		//注销绘制对象
+	 	animate = null;		//注销动画对象
 	 	api = null;			//注销API接口
 	 	tp.option = null;	//注销配置
 	 	tp.canvas = null;
@@ -334,6 +346,7 @@ function ctopo(opt){
 	 	layout = new Layout();		//初始化布局对象
 	 	event = new Event();		//初始化监听对象
 	 	render = new Render();		//初始化绘制对象
+	 	animate = new Animate();	//初始化动画对象
 	 	api = new API();			//初始化API接口
 	 	tp.extendCopy(tp,api); //属性copy
 	}
@@ -355,11 +368,13 @@ function ctopo(opt){
 		}
 		//上下左右平移的回调
 		function steerwheelCallBack(keyCode){
+			animate.destory();
 			//逻辑处理
 			utils.moveSteerWheel(tp.nodes,keyCode);
 			//初始完成后才进行绘制
 			if( appState == STATE_INIT_OVER ){
 				render.draw();
+				animate.init(tp.nodes,tp.edges);
 			}
 			//设置回调
 			if( tp.option.event.steerwheel ){
@@ -368,11 +383,13 @@ function ctopo(opt){
 		}
 		//放大缩小的回调
 		function scaleCallBack(prevScale,scale){
+			animate.destory();
 			//逻辑处理
 			utils.inOutScale(tp.nodes,tp.canvas.width,tp.canvas.height,prevScale,scale);
 			//初始完成后才进行绘制
 			if( appState == STATE_INIT_OVER ){
 				render.draw();
+				animate.init(tp.nodes,tp.edges);
 			}
 			//设置回调
 			if( tp.option.event.scale ){
@@ -468,9 +485,10 @@ function ctopo(opt){
 
 		//函数节流
 		this.throttle = function(method,context,time){
+			var arg = arguments;
 			clearTimeout(method.tId);
 			method.tId=setTimeout(function(){
-				method.call(context);
+				method.call(context,arg[3],arg[4]);
 			},time);
 		}
 
@@ -897,6 +915,7 @@ function ctopo(opt){
 			if( self.fpsCount++ >= self.fps ){
 				//判断是否拖拽
 				if( self.isDragDrap ){
+					animate.destory();
 					//保存坐标
 					self.dragCurrentX = e.pageX;
 					self.dragCurrentY = e.pageY;
@@ -921,7 +940,12 @@ function ctopo(opt){
 							node.y = node.y + dy;
 						}
 					}
-					utils.throttle(render.draw,render,Math.floor(1000/60) );
+					//是否启动动画
+					if( tp.option.isOnAnimateBall ){
+						utils.throttle(animate.init,animate,Math.floor(1000/60),tp.nodes,tp.edges);
+					}else{
+						utils.throttle(render.draw,render,Math.floor(1000/60) );
+					}
 				}
 				//不是拖拽,那就是没有mousedown,那就是悬停
 				else{
@@ -1012,10 +1036,10 @@ function ctopo(opt){
 			canvasW = tp.canvas.width,
 			canvasH = tp.canvas.height;
 
-		this.draw=function(){
-			clearCanvas();						//清除图像
-			drawGlobal(tp.option.style.global);	//绘制背景
-			drawData(tp.nodes,tp.edges);		//绘制数据
+		this.draw=function(callback){
+			clearCanvas();							//清除图像
+			drawGlobal(tp.option.style.global);		//绘制背景
+			drawData(tp.nodes,tp.edges,callback);	//绘制数据
 		}
 
 		/**
@@ -1057,10 +1081,16 @@ function ctopo(opt){
 		  	}
 		}
 
-		function drawData(nodes,edges){
+		//支持回调
+		function drawData(nodes,edges,callback){
 			//绘制连线
 			for(var i=0;i<edges.length;i++){
 			   	drawEdge(edges[i]);	
+			}
+			//连线上的动画小球,
+			//这样写的原因是因为不用处理动画小球运动到节点边缘的碰撞检测
+			if( callback instanceof Function ){
+				callback();
 			}
 			//绘制节点
 			for(var i=0;i<nodes.length;i++){
@@ -1145,6 +1175,96 @@ function ctopo(opt){
 		  	context.restore();
 		}
 	}
+	//动画对象(私有对象)------------------------------------------------
+	function Animate(){
+        var context = tp.context,//画布的上下文对象
+        	speed = 1;           //小球的速度
+        this.animateBalls =[];   //连线动画小球数组
+        this.init = function(nodes,edges){
+        	if( tp.option.isOnAnimateBall ){
+        		//初始化动画小球的各项参数
+	          	var nodeS,nodeE,edge,dx,dy,diff,moves,xuint,yuint;
+	          	this.animateBalls.splice(0,this.animateBalls.length); //干掉所有计算数据
+	          	for(var i=0; i<edges.length; i++){
+		            edge = edges[i];
+		            nodeS = nodes[edge.sourceIndex];
+		            nodeE = nodes[edge.targetIndex];
+		            dx = nodeE.x-nodeS.x;
+		            dy = nodeE.y-nodeS.y;
+		            diff = Math.sqrt(dx*dx+dy*dy);  //直线距离-终点半径
+		            moves = diff/speed;       //移动的次数
+		            xuint = dx/moves;         //x轴每份运动的距离
+		            yuint = dy/moves;         //y轴每份运动的距离
+		            this.animateBalls.push({
+		                x:nodeS.x,      	//当前位置x
+		                y:nodeS.y,      	//当前位置y
+		                sx:nodeS.x,  		//开始位置x
+		                sy:nodeS.y,  		//开始位置y
+		                color:nodeS.originalColor,  //小球颜色
+		                size:edge.size,     //小球尺寸
+		                moves:moves,        //当前还剩的次数
+		                initMoves:moves,    //初始的次数
+		                xuint:xuint,        //x轴每份运动的距离
+		                yuint:yuint         //y轴每份运动的距离
+		            }); 
+	          	}
+	          	this.play();
+        	}
+          	return this;
+        }
+        this.play = function(){
+        	var self = this;
+        	this.animateInterval = setInterval(function(){
+          		//先绘制图像
+				render.draw(function(){
+					//动画性能测试
+		      		//200点线 ff:40ms chrome:3ms
+		      		//100点线 ff:14ms chrome:2ms
+		      		//50点线  ff:9ms  chrome:1ms
+		          	//var date1 = new Date().getTime();
+		          	//再绘制动画
+		          	self.drawRayBalls();
+		          	//var date2 = new Date().getTime();
+		          	//console.log("animate time="+(date2-date1));
+		        });
+        	},20); //帧率fps=50
+        }
+        this.destory = function(){
+        	clearInterval(this.animateInterval);
+        	return this;
+        }
+        this.drawRayBalls = function(){
+	        context.save();
+	        context.shadowOffsetX = 0;
+	        context.shadowOffsetY = 0;
+	        context.shadowBlur = 4;
+	        var nodeS,nodeE,edge,ball;
+	        for(var i=0;i<tp.edges.length;i++){
+	        	edge = tp.edges[i];
+	            nodeS = tp.nodes[edge.sourceIndex];
+	            nodeE = tp.nodes[edge.targetIndex];
+	            ball = this.animateBalls[i];
+	            if( ball.moves > 0 ){
+	              ball.moves--;
+	              ball.x = ball.x+ball.xuint;
+	              ball.y = ball.y+ball.yuint;
+	            }else{
+	              ball.moves = ball.initMoves;
+	              ball.x = ball.sx;
+	              ball.y = ball.sy;
+	            }
+	            this.drawRayBall(ball.x,ball.y,ball.color,ball.size*2);
+	        }
+	        context.restore();
+        }
+        this.drawRayBall = function(x,y,color,size){
+            context.fillStyle = color;
+            context.shadowColor = color;
+            for (var i = 0; i < 4; i++) { //反复叠加是因为增加发光效果
+              	context.fillRect(x-size/2,y-size/2,size,size); //中心点
+            }
+        }
+    }
 	//API开放接口,会合并到tp上(公开对象)
 	function API(){
 		this.addEdge = function(edge,isDrawNow){
@@ -1263,6 +1383,14 @@ function ctopo(opt){
 		this.nodeTooltipsVisible = function(visible){
 			this.option.isShowNodeTooltip = !!visible;
 			render.draw();
+		}
+		this.edgeAnimateBallsVisible = function(visible){
+			this.option.isOnAnimateBall = !!visible;
+			animate.destory();
+			render.draw();
+			if( this.option.isOnAnimateBal ){
+				animate.init(this.nodes,this.edges);
+			}
 		}
 		this.consolePanelVisible = function(visible){
 			visible = !!visible;
