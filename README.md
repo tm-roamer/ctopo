@@ -65,7 +65,7 @@ ps: 因为ff,chrome不支持本地请求json文件, 将整体工程放到本服�
 		//chrome nodes count=200,edges count=200,layout time=233,draw time=10
 缺点
 -----
-  (1)性能差一点<br/>
+  (1)力导向布局算法性能差一点,还需要进一步优化<br/>
   (2)不支持节点图片和图标<br/>
   (3)不支持框选操作
 
