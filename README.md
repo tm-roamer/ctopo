@@ -96,8 +96,8 @@ ps: 因为ff,chrome不支持本地请求json文件, 将整体工程放到本服�
   
 界面展示
 -----
-  ![github](http://zcimg.zcool.com.cn/zcimg/m_ea6154a40239000001495fbfb757.jpg "示例图片")
-  ![github](http://zcimg.zcool.com.cn/zcimg/m_2bbd54a4010e0000014b09b75730.jpg "UI皮肤")
+  ![github](https://github.com/tm-roamer/ctopo/blob/master/image/demo.png?raw=true "示例图片")
+  ![github](https://github.com/tm-roamer/ctopo/blob/master/image/skin.jpg?raw=true "UI皮肤")
   
 版权
 -----
