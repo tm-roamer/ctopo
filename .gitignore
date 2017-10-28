@@ -1,0 +1,10 @@
+# 这个文件是git的标识忽略文件的配置文件, 标识的文件将不会提交到git
+
+**/node_modules
+.idea/
+dist/
+npm-debug.log*
+.DS_Store*
+.project
+.vs
+net-poc-web.iml
